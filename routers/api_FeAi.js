@@ -109,7 +109,7 @@ router.get("/reels/:reels_id", (req, res) => {
 })
 
 
-router.post("/analyze/platform", async (req, res) => {
+router.post("/offer/analyze", async (req, res) => {
     const { url } = req.body;
   
     if (!url) {
@@ -126,21 +126,21 @@ router.post("/analyze/platform", async (req, res) => {
         platform = "YouTube";
         const match = url.match(/(?:shorts\/|watch\?v=|youtu\.be\/)([\w-]+)/);
         videoId = match ? match[1] : null;
-        targetEndpoint = "http://localhost:8001/youtube/analyze";
+        targetEndpoint = DEF_AI_DEV_URL + "/youtube/analyze";
   
       // Instagram Reels
       } else if (url.includes("instagram.com/reel")) {
         platform = "Instagram";
         const match = url.match(/instagram\.com\/reel\/([a-zA-Z0-9_-]+)/);
         videoId = match ? match[1] : null;
-        targetEndpoint = "http://localhost:8002/instagram/analyze";
+        targetEndpoint = DEF_AI_DEV_URL + "/instagram/analyze";
   
       // TikTok
       } else if (url.includes("tiktok.com")) {
         platform = "TikTok";
         const match = url.match(/video\/(\d+)/);
         videoId = match ? match[1] : null;
-        targetEndpoint = "http://localhost:8003/tiktok/analyze";
+        targetEndpoint = DEF_AI_DEV_URL + "/tiktok/analyze";
   
       } else {
         return res.status(400).json({ error: "지원되지 않는 플랫폼입니다." });
@@ -149,15 +149,32 @@ router.post("/analyze/platform", async (req, res) => {
       if (!videoId) {
         return res.status(400).json({ error: "영상 ID를 추출할 수 없습니다." });
       }
+
+      var data = {
+        platform : platform,
+        videoId : videoId,
+        originalUrl : url
+      }
+
+      var config = {
+        method  : 'post',
+        url     :  url,
+        headers :  {},
+        data    :  data
+      };
+
+      axios(config)
+      .then(function (response) {
+          console.log(`[${new Date().toISOString()}]` + " [1-3. 영상 분석 response from bhBE] :: " );//+ JSON.stringify(response.data));
   
-      // request 전송
-      const response = await axios.post(DEF_AI_DEV_URL+"/analyze/platform", {
-        platform,
-        videoId,
-        originalUrl: url
+          var res_json = response.data;
+         
+          console.log(`[${new Date().toISOString()}]` + " [1-4. 영상 분석 response to FE] :: " + reelsId);
+          res.send(res_json);
+      })
+      .catch(function (error) {
+        console.log(error);
       });
-  
-      return res.json(response.data);
   
     } catch (err) {
       console.error("분석 중 오류:", err.message);
