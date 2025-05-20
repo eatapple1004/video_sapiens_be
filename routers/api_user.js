@@ -1,4 +1,6 @@
 require('../Def');  // 정의
+const logger   = require("../utils/logger");
+const userRepo = require("../repositories/user.repository");
 
 const express    = require("express");
 const nodemailer = require("nodemailer");
@@ -26,14 +28,17 @@ redisClient.connect();
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 
-// ✅ **1) 사용자가 회원가입을 시도하면 OTP를 이메일로 전송**
+// 1) 사용자가 회원가입을 시도하면 OTP를 이메일로 전송
 router.post("/send-otp", async (req, res) => {
 
-    console.log("[1_1. register otp request from FE] :: ");
-
     const { email } = req.body;
-    if (!email) return res.status(400).json({ message: "이메일을 입력하세요." });
 
+    logger.info("[1_1. register otp request from FE] :: " + email);
+
+    if (!email) {
+        logger.info("[1_2. register otp request from FE] :: fail with empty email");
+        return res.status(400).json({ message: "이메일을 입력하세요." });
+    }
     const otp = generateOTP();
 
     // OTP를 Redis에 저장 (5분 동안 유지)
@@ -50,32 +55,39 @@ router.post("/send-otp", async (req, res) => {
     try {
         await transporter.sendMail(mailOptions);
         res.json({ message: "인증 코드가 전송되었습니다." });
+        logger.info("[1_2. register otp request from FE] :: send otp code to " + email);
     } catch (error) {
         res.status(500).json({ message: "이메일 전송 실패", error });
+        logger.info("[1_2. register otp request from FE] :: fail send otp code to " + email);
     }
 });
 
-// ✅ **2) 사용자가 입력한 OTP를 검증**
+// 2) 사용자가 입력한 OTP를 검증
 router.post("/verify-otp", async (req, res) => {
     const { email, otp } = req.body;
+    logger.info("[1.1 verify otp request from FE] :: " + email);
     if (!email || !otp) return res.status(400).json({ message: "이메일과 OTP를 입력하세요." });
 
     const storedOtp = await redisClient.get(email);
-    if (!storedOtp) return res.status(400).json({ message: "OTP가 만료되었거나 잘못되었습니다." });
-
+    if (!storedOtp) { 
+        logger.info("[1.2 verify otp request from FE] :: no opt in redis for - " + email);
+        return res.status(400).json({ message: "OTP가 만료되었거나 잘못되었습니다." });
+    }
     if (storedOtp === otp) {
-        //await redisClient.del(email); // OTP 삭제
         res.json({ message: "인증 성공" });
+        logger.info("[1.2 verify otp request from FE] :: success verify otp for - " + email);
     } else {
         res.status(400).json({ message: "OTP가 일치하지 않습니다." });
+        logger.info("[1.2 verify otp request from FE] :: fail verify otp for - " + email);
     }
 });
 
+// 3) 사용자 회원가입 성공, DB 저장 시작
 router.post("/user/register", async (req, res) => {  
     try {
         const { email, password, otp } = req.body;
 
-        console.log("[1-1. 회원가입 request from FE] :: " + email);
+        console.log("[1-1. register request from FE] :: " + email);
 
         const storedOtp = await redisClient.get(email);
         if (!storedOtp || storedOtp !== otp) {
@@ -83,7 +95,7 @@ router.post("/user/register", async (req, res) => {
         }
 
         // 이메일 중복 확인
-        const exists = await isUserExists(email);
+        const exists = await userRepo.isUserExists(email);
         if (exists) return res.status(400).json({ message: "이미 가입된 이메일입니다." });
 
         // 비밀번호 해싱
