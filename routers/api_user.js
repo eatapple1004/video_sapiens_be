@@ -1,12 +1,11 @@
 require('../Def');  // 정의
-const logger   = require("../utils/logger");
-const userRepo = require("../repositories/user.repository");
+const logger       = require("../utils/logger");
+const passwordUtil = require("../utils/password");
+const userRepo     = require("../repositories/user.repository");
 
 const express    = require("express");
 const nodemailer = require("nodemailer");
 const redis      = require("redis");
-const bcrypt     = require('bcrypt'); // bcryptjs 사용
-const jwt        = require('jsonwebtoken');
 
 // 라우터 객체 참조
 var router = express.Router();
@@ -87,27 +86,34 @@ router.post("/user/register", async (req, res) => {
     try {
         const { email, password, otp } = req.body;
 
-        console.log("[1-1. register request from FE] :: " + email);
+        logger.info("[1-1. register request from FE] :: " + email);
 
         const storedOtp = await redisClient.get(email);
         if (!storedOtp || storedOtp !== otp) {
             return res.status(400).json({ message: "OTP 인증 실패" });
         }
 
+        logger.info("[1-2. register request from FE] :: success otp verify - " + email);
+
         // 이메일 중복 확인
         const exists = await userRepo.isUserExists(email);
-        if (exists) return res.status(400).json({ message: "이미 가입된 이메일입니다." });
+        if (exists) {
+            logger.info("[1-3. register request from FE] :: exist email - " + email);
+            return res.status(400).json({ message: "이미 가입된 이메일입니다." });
+        }
+        logger.info("[1-3. register request from FE] :: new email - " + email);
 
         // 비밀번호 해싱
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await passwordUtil.hashPassword(password);
 
         // 회원가입
-        await registerUser(email, hashedPassword);
+        await userRepo.registerUser(email, hashedPassword);
 
         // OTP 삭제
         await redisClient.del(email);
 
         res.status(201).json({ message: "회원가입 성공" });
+        logger.info("[1-4. register request from FE] :: new email - " + email);
 
     } catch (error) {
         console.error("회원가입 오류:", error);

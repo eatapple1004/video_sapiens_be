@@ -18,6 +18,32 @@ async function isUserExists(email) {
     }
 }
 
+async function registerUser(email, password) {
+    try {
+        console.log("📡 PostgreSQL 연결 성공!");
+
+        // 비밀번호 해싱 (bcrypt 사용)
+        const saltRounds = 10;
+        //const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        // 사용자 데이터 삽입
+        const query = `
+            INSERT INTO users (email, password_hash) 
+            VALUES ($1, $2) 
+            RETURNING idx;
+        `;
+        const values = [email, password];
+
+        const result = await client.query(query, values);
+        console.log(`✅ 회원가입 성공 (User ID: ${result.rows[0].id})`);
+    } catch (error) {
+        console.error("❌ 회원가입 오류:", error);
+    } finally {
+        
+    }
+}
+
 module.exports = {
   isUserExists,
+  registerUser
 };
