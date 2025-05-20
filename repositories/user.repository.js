@@ -1,5 +1,5 @@
-const pool = require("../config/database");
-const logger = require("../utils/logger"); // 선택: winston logger 사용 시
+const pool   = require("../config/database");
+const logger = require("../utils/logger");
 
 /**
  * 이메일이 이미 존재하는지 확인하는 함수
@@ -34,7 +34,7 @@ async function registerUser(email, password) {
         `;
         const values = [email, password];
 
-        const result = await client.query(query, values);
+        const result = await pool.query(query, values);
         console.log(`✅ 회원가입 성공 (User ID: ${result.rows[0].id})`);
     } catch (error) {
         console.error("❌ 회원가입 오류:", error);
@@ -45,5 +45,5 @@ async function registerUser(email, password) {
 
 module.exports = {
   isUserExists,
-  registerUser
+  registerUser,
 };

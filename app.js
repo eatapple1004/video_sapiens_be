@@ -28,9 +28,9 @@ app.use(cors({
     credentials: true  // 쿠키 및 인증 정보 허용
 }));
 
-var api_user    = require('./routers/api_user.js');
+const user_router = require('./routers/user.router');
 
-app.use('/api', api_user);
+app.use('/api', user_router);
 
 
 app.use("/upload", express.static(path.join(__dirname, "/uploads")));
