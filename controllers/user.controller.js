@@ -2,6 +2,7 @@ const authService = require("../services/user.service");
 
 exports.sendOtp = async (req, res) => {
   const { email } = req.body;
+  logger.info("[1_1. send otp] :: " + email);
   try {
     const result = await authService.sendOtp(email);
     res.json({ message: result });

@@ -16,20 +16,22 @@ const transporter = nodemailer.createTransport({
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 exports.sendOtp = async (email) => {
-  if (!email) throw new Error("이메일이 필요합니다.");
+    if (!email) {
+        logger.info("[1_2. send otp] :: empty email - " + email);
+        throw new Error("이메일이 필요합니다.");
+    }
+    const otp = generateOTP();
+    await redisClient.setEx(email, 300, otp);
 
-  const otp = generateOTP();
-  await redisClient.setEx(email, 300, otp);
+    await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "이메일 인증 코드",
+        text: `인증 코드: ${otp} (5분 내로 입력해주세요.)`,
+    });
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "이메일 인증 코드",
-    text: `인증 코드: ${otp} (5분 내로 입력해주세요.)`,
-  });
-
-  logger.info(`[OTP 전송] ${email} → ${otp}`);
-  return "인증 코드가 전송되었습니다.";
+    logger.info(`[OTP 전송] ${email} → ${otp}`);
+    return "인증 코드가 전송되었습니다.";
 };
 
 exports.verifyOtp = async (email, otp) => {

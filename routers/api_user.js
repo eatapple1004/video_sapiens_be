@@ -121,50 +121,6 @@ router.post("/user/register", async (req, res) => {
     }
 });
 
-async function loginUser(email, password) {
-    try {
-        //await client.connect();
-        console.log("1 :: 쿼리 시작 :: " + email )
-        // 사용자 정보 조회
-        const query = `SELECT idx, password_hash FROM users WHERE email = $1`;
-        const result = await client.query(query, [email]);
-        
-        console.log("result.rows.length :: " + result.rows.length)
-        if (result.rows.length === 0) {
-            console.log("❌ 로그인 실패: 사용자 없음");
-            return false;
-        }
 
-        const user = result.rows[0];
-        
-        console.log("2 :: " +user.password_hash)
-
-        return user.password_hash;
-        /*
-        // 비밀번호 검증
-        const isMatch = await bcrypt.compare(password, user.password_hash);
-        if (!isMatch) {
-            console.log("❌ 로그인 실패: 비밀번호 불일치");
-            return false;
-        }
-
-        // JWT 토큰 발급
-        const token = jwt.sign({ userId: user.id }, 'SECRET_KEY', { expiresIn: '7d' });
-
-        console.log(`✅ 로그인 성공 (JWT 토큰: ${token})`);
-
-        // 세션 테이블에 저장
-        await client.query(`
-            INSERT INTO sessions (user_id, session_token, expires_at) 
-            VALUES ($1, $2, NOW() + INTERVAL '7 days');
-        `, [user.id, token]);
-        */
-
-    } catch (error) {
-        console.error("❌ 로그인 오류:", error);
-    } finally {
-        
-    }
-}
 
 module.exports = router;
