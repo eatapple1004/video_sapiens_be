@@ -1,4 +1,5 @@
-require('./Def');  // 정의
+//require('./Def');  // 정의
+require("dotenv").config();
 const pool = require("./config/database");
 
 //express 모듈 불러오기
@@ -37,7 +38,7 @@ app.use("/upload", express.static(path.join(__dirname, "/uploads")));
 
 app.get("/info", (req, res) => {
     //Hello World 데이터 반환
-    res.send(DEF_APP_TITLE + " made by "+ DEF_APP_GREATE_DATE);
+    res.send(process.env.DEF_APP_TITLE + " made by "+ process.env.DEF_APP_GREATE_DATE);
 });
 
 
@@ -46,27 +47,27 @@ app.use((req, res, next) => {
     res.status(404).send(`
       <center>
         <h1>ERROR - Unable to find a Page.</h1>
-        <h2>${DEF_APP_TITLE} by YJ</h2>
+        <h2>${process.env.DEF_APP_TITLE} by YJ</h2>
       </center>
     `);
   });
 
 //HTTP 서버 시작
-if(DEF_USING_HTTP == true)
+if(process.env.DEF_USING_HTTP == true)
 {
-    if(typeof DEF_EVP_LOCAL_HTTP_PORT != 'undefined') 
+    if(typeof process.env.DEF_EVP_LOCAL_HTTP_PORT != 'undefined') 
     {
         // Create an HTTP service.
-        http.createServer(app).listen(DEF_EVP_LOCAL_HTTP_PORT, () => console.log(DEF_APP_TITLE  + " HTTP Server For Test(" + DEF_EVP_LOCAL_HTTP_PORT +")"));
+        http.createServer(app).listen(process.env.DEF_EVP_LOCAL_HTTP_PORT, () => console.log(process.env.DEF_APP_TITLE  + " HTTP Server For Test(" + process.env.DEF_EVP_LOCAL_HTTP_PORT +")"));
     }
 }
 
 // 사용에 대한 확인  필요
-if(DEF_USING_HTTPS == true)
+if(process.env.DEF_USING_HTTPS == true)
 {
-    if(typeof DEF_EVP_LOCAL_HTTPS_PORT != 'undefined') 
+    if(typeof process.env.DEF_EVP_LOCAL_HTTPS_PORT != 'undefined') 
     {
         // Create an HTTPS service identical to the HTTP service.
-        https.createServer(options, app).listen(DEF_EVP_LOCAL_HTTPS_PORT,  () => console.log(DEF_APP_TITLE  + " HTTPS Server For Test(" + DEF_EVP_LOCAL_HTTPS_PORT +")"));
+        https.createServer(options, app).listen(process.env.DEF_EVP_LOCAL_HTTPS_PORT,  () => console.log(process.env.DEF_APP_TITLE  + " HTTPS Server For Test(" + process.env.DEF_EVP_LOCAL_HTTPS_PORT +")"));
     }
 }
