@@ -53,7 +53,7 @@ app.use((req, res, next) => {
   });
 
 //HTTP 서버 시작
-if(process.env.DEF_USING_HTTP == true)
+if(process.env.DEF_USING_HTTP == "true")
 {
     if(typeof process.env.DEF_EVP_LOCAL_HTTP_PORT != 'undefined') 
     {
