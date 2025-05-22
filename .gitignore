@@ -1,7 +1,9 @@
 node_modules/
 
+logs/
+
 Def.js
 
-logs/
+
 
 .env
