@@ -1,0 +1,42 @@
+[2025-05-21 20:56:43] [ERROR] uncaughtException: console.lof is not a function
+TypeError: console.lof is not a function
+    at Object.<anonymous> (/Users/yongjunlee/Documents/Work/VideoSapiens/BE/video_sapiens_be/app.js:55:9)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+    at Module.load (node:internal/modules/cjs/loader:1465:32)
+    at Function._load (node:internal/modules/cjs/loader:1282:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)
+    at node:internal/main/run_main_module:36:49
+[2025-05-21 20:56:59] [ERROR] uncaughtException: console.lof is not a function
+TypeError: console.lof is not a function
+    at Object.<anonymous> (/Users/yongjunlee/Documents/Work/VideoSapiens/BE/video_sapiens_be/app.js:55:9)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+    at Module.load (node:internal/modules/cjs/loader:1465:32)
+    at Function._load (node:internal/modules/cjs/loader:1282:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)
+    at node:internal/main/run_main_module:36:49
+[2025-05-21 22:56:06] [ERROR] uncaughtException: logger is not defined
+ReferenceError: logger is not defined
+    at /Users/yongjunlee/Documents/Work/VideoSapiens/BE/video_sapiens_be/config/database.js:14:24
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[2025-05-21 22:56:13] [ERROR] uncaughtException: logger is not defined
+ReferenceError: logger is not defined
+    at /Users/yongjunlee/Documents/Work/VideoSapiens/BE/video_sapiens_be/config/database.js:15:24
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[2025-05-22 11:53:33] [ERROR] uncaughtException: argument handler is required
+TypeError: argument handler is required
+    at Route.<computed> [as post] (/Users/yongjunlee/Documents/Work/VideoSapiens/BE/video_sapiens_be/node_modules/router/lib/route.js:221:13)
+    at Router.<computed> [as post] (/Users/yongjunlee/Documents/Work/VideoSapiens/BE/video_sapiens_be/node_modules/router/index.js:448:19)
+    at Object.<anonymous> (/Users/yongjunlee/Documents/Work/VideoSapiens/BE/video_sapiens_be/routers/user.router.js:9:8)
+    at Module._compile (node:internal/modules/cjs/loader:1730:14)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+    at Module.load (node:internal/modules/cjs/loader:1465:32)
+    at Function._load (node:internal/modules/cjs/loader:1282:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+    at Module.require (node:internal/modules/cjs/loader:1487:12)
