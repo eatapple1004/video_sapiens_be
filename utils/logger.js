@@ -15,7 +15,13 @@ const logger = createLogger({
         logFormat
     ),
     transports: [
-        new transports.Console({ format: combine(colorize(), timestamp(), logFormat) }),
+        new transports.Console({
+            format: combine(
+                timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+                //colorize({ level : true }),       // ✅ 컬러 적용을 전부에 명시적으로 적용
+                logFormat                      // ✅ 포맷은 마지막에 적용
+            )
+        }),
         new transports.File({ filename: "logs/error.log", level: "error" }),
         new transports.File({ filename: "logs/combined.log" })
     ],

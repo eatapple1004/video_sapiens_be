@@ -20,7 +20,7 @@ async function isUserExists(email) {
 
 async function registerUser(email, password) {
     try {
-        console.log("📡 PostgreSQL 연결 성공!");
+        //console.log("📡 PostgreSQL 연결 성공!");
 
         // 비밀번호 해싱 (bcrypt 사용)
         const saltRounds = 10;

@@ -23,7 +23,7 @@ exports.sendOtp = async (email) => {
     }
     const otp = generateOTP();
     await redisClient.setEx(email, 300, otp);
-    logger.info("[1_3. send otp] :: generate otp - " + email);
+    logger.info("[1_2. send otp] :: generate otp - " + email);
 
     await transporter.sendMail({
         from: process.env.DEF_TEST_EMAIL,

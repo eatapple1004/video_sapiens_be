@@ -35,3 +35,18 @@
 [2025-05-21 22:05:02] [INFO] [OTP 검증 성공] frank.virus0325@gmail.com
 [2025-05-21 22:05:02] [INFO] [1_2. verify otp] :: success verify otp - frank.virus0325@gmail.com
 [2025-05-21 22:05:02] [INFO] [1_3. verify otp] :: success with - frank.virus0325@gmail.com
+[2025-05-21 22:45:59] [INFO] ✅ Redis 연결 성공
+[2025-05-21 22:46:08] [INFO] [1_1. send otp] :: frank.virus0325@gmail.com
+[2025-05-21 22:46:08] [INFO] [1_2. send otp] :: generate otp - frank.virus0325@gmail.com
+[2025-05-21 22:46:11] [INFO] [1_3. send otp] :: send otp to email - frank.virus0325@gmail.com
+[2025-05-21 22:46:11] [INFO] [1_4. send otp] :: send response to FE - frank.virus0325@gmail.com
+[2025-05-21 22:52:27] [INFO] ✅ Redis 연결 성공
+[2025-05-21 22:53:28] [INFO] ✅ Redis 연결 성공
+[2025-05-21 22:53:33] [INFO] ✅ Redis 연결 성공
+[2025-05-21 22:55:16] [INFO] ✅ Redis 연결 성공
+[2025-05-21 22:55:42] [INFO] ✅ Redis 연결 성공
+[2025-05-21 22:56:02] [INFO] ✅ Redis 연결 성공
+[2025-05-21 22:56:06] [INFO] ✅ Redis 연결 성공
+[2025-05-21 22:56:13] [INFO] ✅ Redis 연결 성공
+[2025-05-21 22:56:20] [INFO] ✅ Redis 연결 성공
+[2025-05-21 22:56:20] [INFO] ✅ PostgreSQL 연결 성공
