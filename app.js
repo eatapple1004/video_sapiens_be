@@ -29,10 +29,11 @@ app.use(cors({
     credentials: true  // 쿠키 및 인증 정보 허용
 }));
 
-const user_router = require('./routers/user.router');
+const user_router    = require('./routers/user.router');
+const analyze_router = require('./routers/analyze.router');
 
 app.use('/api', user_router);
-
+app.use('/api', analyze_router);
 
 app.use("/upload", express.static(path.join(__dirname, "/uploads")));
 

@@ -126,21 +126,21 @@ router.post("/offer/analyze", async (req, res) => {
         platform = "YouTube";
         const match = url.match(/(?:shorts\/|watch\?v=|youtu\.be\/)([\w-]+)/);
         videoId = match ? match[1] : null;
-        targetEndpoint = DEF_AI_DEV_URL + "/youtube/analyze";
+    
   
       // Instagram Reels
       } else if (url.includes("instagram.com/reel")) {
         platform = "Instagram";
         const match = url.match(/instagram\.com\/reel\/([a-zA-Z0-9_-]+)/);
         videoId = match ? match[1] : null;
-        targetEndpoint = DEF_AI_DEV_URL + "/instagram/analyze";
+      
   
       // TikTok
       } else if (url.includes("tiktok.com")) {
         platform = "TikTok";
         const match = url.match(/video\/(\d+)/);
         videoId = match ? match[1] : null;
-        targetEndpoint = DEF_AI_DEV_URL + "/tiktok/analyze";
+       
   
       } else {
         return res.status(400).json({ error: "지원되지 않는 플랫폼입니다." });
@@ -158,7 +158,7 @@ router.post("/offer/analyze", async (req, res) => {
 
       var config = {
         method  : 'post',
-        url     :  url,
+        url     :  DEF_AI_DEV_URL + "/api/offer/analyze",
         headers :  {},
         data    :  data
       };
