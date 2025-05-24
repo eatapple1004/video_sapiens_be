@@ -1,9 +1,10 @@
 require("dotenv").config();
+const nodemailer   = require("nodemailer");
 const redisClient  = require("../config/redis");
 const userRepo     = require("../repositories/user.repository");
-const passwordUtil = require("../utils/password");
 const logger       = require("../utils/logger");
-const nodemailer   = require("nodemailer");
+const jwtUtil      = require("../utils/jwt");
+const passwordUtil = require("../utils/password");
 
 // 메일 설정
 const transporter = nodemailer.createTransport({
@@ -59,4 +60,15 @@ exports.registerUser = async (email, password, otp) => {
 
   await redisClient.del(email);
   logger.info(`[회원가입 성공] ${email}`);
+};
+
+exports.loginUser = async (email, plainPassword) => {
+  const hashedPassword = await userRepo.getPasswordHashByEmail(email);
+  if (!hashedPassword) throw new Error("이메일 또는 비밀번호가 잘못되었습니다.");
+
+  const isMatch = await passwordUtil.comparePassword(plainPassword, hashedPassword);
+  if (!isMatch) throw new Error("이메일 또는 비밀번호가 잘못되었습니다.");
+
+  const token = jwtUtil.generateToken({ email });
+  return token;
 };

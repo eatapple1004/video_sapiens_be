@@ -6,6 +6,6 @@ router.post("/send-otp",      userController.sendOtp);
 router.post("/verify-otp",    userController.verifyOtp);
 router.post("/user/register", userController.registerUser);
 
-//router.post("/login");
+router.post("/user/login",    userController.loginUser);
 
 module.exports = router;

@@ -43,7 +43,30 @@ async function registerUser(email, password) {
     }
 }
 
+async function getPasswordHashByEmail(email) {
+    try {
+        const query = `
+            SELECT password_hash 
+            FROM users 
+            WHERE email = $1
+        `;
+        const result = await pool.query(query, [email]);
+  
+        if (result.rows.length === 0) {
+            logger.warn(`❗ 사용자 없음: ${email}`);
+            return null;
+        }
+  
+        //console.log(`📥 비밀번호 해시 조회 성공: ${email}`);
+        return result.rows[0].password_hash;
+    } catch (error) {
+        console.error(`❌ 비밀번호 해시 조회 오류 (${email}):`, error);
+        throw error;
+    }
+}
+
 module.exports = {
   isUserExists,
   registerUser,
+  getPasswordHashByEmail
 };
