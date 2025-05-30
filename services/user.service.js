@@ -47,19 +47,22 @@ exports.verifyOtp = async (email, otp) => {
 };
 
 exports.registerUser = async (email, password, otp) => {
-  const storedOtp = await redisClient.get(email);
-  if (!storedOtp || storedOtp !== otp) {
-    throw new Error("OTP 인증 실패");
-  }
+    const storedOtp = await redisClient.get(email);
+    if (!storedOtp || storedOtp !== otp) {
+      logger.info("[1_2. register user] :: fial verify opt" + email);
+      throw new Error("OTP 인증 실패");
+    }
 
-  const exists = await userRepo.isUserExists(email);
-  if (exists) throw new Error("이미 가입된 이메일입니다.");
+    const exists = await userRepo.isUserExists(email);
+    if (exists) {
+      throw new Error("이미 가입된 이메일입니다.");
+    }
+    const hashedPassword = await passwordUtil.hashPassword(password);
+    await userRepo.registerUser(email, hashedPassword);
+    logger.info("[1_1. register user] :: " + email);
 
-  const hashedPassword = await passwordUtil.hashPassword(password);
-  await userRepo.registerUser(email, hashedPassword);
-
-  await redisClient.del(email);
-  logger.info(`[회원가입 성공] ${email}`);
+    await redisClient.del(email);
+    logger.info(`[회원가입 성공] ${email}`);
 };
 
 exports.loginUser = async (email, plainPassword) => {

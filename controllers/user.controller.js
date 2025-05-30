@@ -28,6 +28,7 @@ exports.verifyOtp = async (req, res) => {
 exports.registerUser = async (req, res) => {
   const { email, password, otp } = req.body;
   try {
+    logger.info("[1_1. register user] :: " + email);
     await userService.registerUser(email, password, otp);
     res.status(201).json({ message: "회원가입 성공" });
   } catch (err) {
