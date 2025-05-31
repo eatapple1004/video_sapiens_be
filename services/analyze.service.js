@@ -25,7 +25,7 @@ exports.analyze = async (url) => {
         throw new Error("영상 ID를 추출할 수 없습니다.");
     }
 
-    const payload = {
+    const body = {
         platform,
         videoId,
         originalUrl: url,
@@ -35,7 +35,7 @@ exports.analyze = async (url) => {
         method: "post",
         url: `${DEF_AI_DEV_URL}/api/offer/analyze`,
         headers: {},
-        data: payload,
+        data: body,
     };
 
     const response = await axios(config);
