@@ -33,7 +33,7 @@ exports.analyze = async (url) => {
 
     const config = {
         method: "post",
-        url: `${DEF_AI_DEV_URL}/api/offer/analyze`,
+        url: `${process.env.DEF_AI_DEV_URL}/api/offer/analyze`,
         headers: {},
         data: body,
     };
