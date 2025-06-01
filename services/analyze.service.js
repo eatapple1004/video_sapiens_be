@@ -32,6 +32,7 @@ exports.analyze = async (url, userEmail) => {
         throw new Error("영상 ID를 추출할 수 없습니다.");
     }
 
+    // 영상 분석 요청 db 저장
     const requestIdx = await analyzeRepository.insertAnalyzeRequest({
         userIdx,
         videoId,
