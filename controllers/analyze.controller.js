@@ -9,7 +9,7 @@ exports.analyzeVideo = async (req, res) => {
     if (!url) return res.status(400).json({ error: "URL is required" });
 
     try {
-        const result = await analyzeService.analyze(url);
+        const result = await analyzeService.analyze(url, req.userEmail);
         res.status(200).json(result);
     } catch (err) {
         console.error("분석 중 오류:", err.message);

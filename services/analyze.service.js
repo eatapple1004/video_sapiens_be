@@ -1,7 +1,14 @@
 const axios = require("axios");
+
+const usersRepository   = require("../repositories/user.repository");
+const analyzeRepository = require("../repositories/analyze.repository");
+
 const DEF_AI_DEV_URL = process.env.DEF_AI_DEV_URL;
 
-exports.analyze = async (url) => {
+exports.analyze = async (url, userEmail) => {
+
+    const userIdx = await usersRepository.getUserIdxByEmail(userEmail);
+    
     let platform = null;
     let videoId = null;
 
@@ -40,7 +47,7 @@ exports.analyze = async (url) => {
 
     const config = {
         method: "post",
-        url: `${process.env.DEF_AI_DEV_URL}/api/offer/analyze`,
+        url: `${DEF_AI_DEV_URL}/api/offer/analyze`,
         headers: {},
         data: body,
     };

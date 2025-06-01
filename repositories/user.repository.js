@@ -6,7 +6,7 @@ const logger = require("../utils/logger");
  * @param {string} email - 사용자 이메일
  * @returns {Promise<boolean>} - 중복 여부 (true = 중복됨)
  */
-async function isUserExists(email) {
+exports.isUserExists = async (email) => {
     try {
         const query = `SELECT * FROM users WHERE email = $1`;
         const result = await pool.query(query, [email]);
@@ -18,7 +18,7 @@ async function isUserExists(email) {
     }
 }
 
-async function registerUser(email, password) {
+exports.registerUser = async (email, password) => {
     try {
         //console.log("📡 PostgreSQL 연결 성공!");
 
@@ -43,7 +43,7 @@ async function registerUser(email, password) {
     }
 }
 
-async function getPasswordHashByEmail(email) {
+exports.getPasswordHashByEmail = async (email) => {
     try {
         const query = `
             SELECT password_hash 
@@ -65,8 +65,15 @@ async function getPasswordHashByEmail(email) {
     }
 }
 
-module.exports = {
-  isUserExists,
-  registerUser,
-  getPasswordHashByEmail
+
+exports.getUserIdxByEmail = async (email) => {
+    const query = `SELECT idx FROM users WHERE email = $1 LIMIT 1;`;
+    const values = [email];
+    const result = await db.query(query, values);
+    
+    if (result.rows.length === 0) {
+      throw new Error("해당 이메일로 등록된 유저가 없습니다.");
+    }
+  
+    return result.rows[0].idx;
 };
