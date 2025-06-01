@@ -7,5 +7,5 @@ exports.insertAnalyzeRequest = async ({ userId, videoId, platform, originalUrl }
     RETURNING id;
   `;
   const [result] = await db.query(query, [userId, videoId, platform, originalUrl]);
-  return result[0].id;
+  return result[0].idx;
 };

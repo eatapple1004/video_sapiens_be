@@ -1,4 +1,7 @@
 const analyzeService = require("../services/analyze.service");
+const jwt = require("jsonwebtoken");
+
+
 
 exports.analyzeVideo = async (req, res) => {
     const { url } = req.body;
