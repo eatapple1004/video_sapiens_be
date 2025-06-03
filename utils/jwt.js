@@ -1,6 +1,6 @@
 // utils/jwt.js
 const jwt = require("jsonwebtoken");
-const SECRET_KEY = DEF_JWT_SECRET_KEY;
+const SECRET_KEY = process.env.DEF_JWT_SECRET_KEY;
 
 exports.generateToken = (payload) => {
     return jwt.sign(payload, SECRET_KEY, { expiresIn: "1h" });

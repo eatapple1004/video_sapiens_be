@@ -44,11 +44,11 @@ exports.loginUser = async (req, res) => {
 
       // JWT 토큰을 쿠키로 전송
       res.cookie("authToken", token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "Strict",
-        maxAge: 3600000, // 1시간
-        domain: ".videosapiens.ai"
+        httpOnly: true,     //  JavaScript 접근 불가 (보안 강화)
+        secure: true,       //  HTTPS 환경에서만 전송
+        sameSite: "Strict", //  XSS 공격 방지
+        maxAge: 3600000,    //  1시간
+        //domain: ".videosapiens.ai"
       });
 
       res.status(200).json({ message: "로그인 성공" });

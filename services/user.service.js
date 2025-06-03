@@ -72,6 +72,6 @@ exports.loginUser = async (email, plainPassword) => {
   const isMatch = await passwordUtil.comparePassword(plainPassword, hashedPassword);
   if (!isMatch) throw new Error("이메일 또는 비밀번호가 잘못되었습니다.");
 
-  const token = jwtUtil.generateToken({ email });
+  const token = jwtUtil.generateToken({ username: email });
   return token;
 };
