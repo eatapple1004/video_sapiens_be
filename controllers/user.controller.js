@@ -39,9 +39,12 @@ exports.registerUser = async (req, res) => {
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
+  logger.info("[1_1. user login - get request from FE] :: " + email);
+
     try {
       const token = await userService.loginUser(email, password);
 
+      logger.info("[1_4. user login - send token to FE] :: " + email);
       // JWT 토큰을 쿠키로 전송
       res.cookie("authToken", token, {
         httpOnly: true,     //  JavaScript 접근 불가 (보안 강화)

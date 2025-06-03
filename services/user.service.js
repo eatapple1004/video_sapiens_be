@@ -66,12 +66,15 @@ exports.registerUser = async (email, password, otp) => {
 };
 
 exports.loginUser = async (email, plainPassword) => {
-  const hashedPassword = await userRepo.getPasswordHashByEmail(email);
-  if (!hashedPassword) throw new Error("이메일 또는 비밀번호가 잘못되었습니다.");
+    
+    logger.info("[1_2. user login - check email] :: " + email);
+    const hashedPassword = await userRepo.getPasswordHashByEmail(email);
+    if (!hashedPassword) throw new Error("이메일 또는 비밀번호가 잘못되었습니다.");
 
-  const isMatch = await passwordUtil.comparePassword(plainPassword, hashedPassword);
-  if (!isMatch) throw new Error("이메일 또는 비밀번호가 잘못되었습니다.");
+    logger.info("[1_3. user login - check password] :: " + email);
+    const isMatch = await passwordUtil.comparePassword(plainPassword, hashedPassword);
+    if (!isMatch) throw new Error("이메일 또는 비밀번호가 잘못되었습니다.");
 
-  const token = jwtUtil.generateToken({ username: email });
-  return token;
+    const token = jwtUtil.generateToken({ username: email });
+    return token;
 };
