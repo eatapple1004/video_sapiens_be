@@ -67,11 +67,11 @@ exports.registerUser = async (email, password, otp) => {
 
 exports.loginUser = async (email, plainPassword) => {
     
-    logger.info("[1_2. user login - check email] :: " + email);
+    logger.info("[1_2. user login - check email]         :: " + email);
     const hashedPassword = await userRepo.getPasswordHashByEmail(email);
     if (!hashedPassword) throw new Error("이메일 또는 비밀번호가 잘못되었습니다.");
 
-    logger.info("[1_3. user login - check password] :: " + email);
+    logger.info("[1_3. user login - check password]      :: " + email);
     const isMatch = await passwordUtil.comparePassword(plainPassword, hashedPassword);
     if (!isMatch) throw new Error("이메일 또는 비밀번호가 잘못되었습니다.");
 

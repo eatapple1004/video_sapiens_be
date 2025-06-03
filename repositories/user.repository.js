@@ -1,4 +1,4 @@
-const pool   = require("../config/database");
+const db     = require("../config/database");
 const logger = require("../utils/logger");
 
 /**
@@ -9,7 +9,7 @@ const logger = require("../utils/logger");
 exports.isUserExists = async (email) => {
     try {
         const query = `SELECT * FROM users WHERE email = $1`;
-        const result = await pool.query(query, [email]);
+        const result = await db.query(query, [email]);
 
         return result.rows.length > 0;
     } catch (error) {
@@ -34,7 +34,7 @@ exports.registerUser = async (email, password) => {
         `;
         const values = [email, password];
 
-        const result = await pool.query(query, values);
+        const result = await db.query(query, values);
         console.log(`✅ 회원가입 성공 (User ID: ${result.rows[0].id})`);
     } catch (error) {
         console.error("❌ 회원가입 오류:", error);
@@ -50,7 +50,7 @@ exports.getPasswordHashByEmail = async (email) => {
             FROM users 
             WHERE email = $1
         `;
-        const result = await pool.query(query, [email]);
+        const result = await db.query(query, [email]);
   
         if (result.rows.length === 0) {
             logger.warn(`❗ 사용자 없음: ${email}`);

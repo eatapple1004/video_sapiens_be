@@ -2,13 +2,14 @@ const axios = require("axios");
 
 const usersRepository   = require("../repositories/user.repository");
 const analyzeRepository = require("../repositories/analyze.repository");
+const logger = require("../utils/logger");
 
 const DEF_AI_DEV_URL = process.env.DEF_AI_DEV_URL;
 
 exports.analyze = async (url, userEmail) => {
 
     const userIdx = await usersRepository.getUserIdxByEmail(userEmail);
-    
+    logger.info(userEmail)
     let platform = null;
     let videoId = null;
 
