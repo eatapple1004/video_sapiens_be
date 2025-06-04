@@ -59,3 +59,15 @@ exports.loginUser = async (req, res) => {
       res.status(400).json({ message: err.message || "로그인 실패" });
     }
 };
+
+exports.getTokenUsername = async (req, res) => {
+
+  logger.info("[1_1. username 조회 request from FE]" + req.userEmail);
+  const username = req.userEmail;
+
+  res.status(200).json({
+    username : username
+  })
+  logger.info("[1_2. username 조회 response to FE]" + req.userEmail);
+
+}
