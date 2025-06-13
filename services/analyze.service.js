@@ -6,14 +6,14 @@ const logger = require("../utils/logger");
 
 const DEF_AI_DEV_URL = process.env.DEF_AI_DEV_URL;
 
-exports.analyze = async (url, userEmail) => {
+exports.sendAnalyzeRequest = async (url, userEmail) => {
 
     const userIdx = await usersRepository.getUserIdxByEmail(userEmail);
     logger.info(userEmail)
     let platform = null;
     let videoId = null;
 
-    if (url.includes("youtube.com/shorts") || url.includes("youtu.be")) {
+    if (url.includes("youtube.com/shorts") || url.includes("youtube")) {
         platform = "YouTube";
         const match = url.match(/(?:shorts\/|watch\?v=|youtu\.be\/)([\w-]+)/);
         videoId = match ? match[1] : null;
@@ -54,6 +54,20 @@ exports.analyze = async (url, userEmail) => {
         data: body,
     };
 
-    const response = await axios(config);
+    axios(config)
+        .then(function (response) {
+            console.log(`[${new Date().toISOString()}]` + " [1-3. 영상 분석 response from bhBE] :: " );//+ JSON.stringify(response.data));
+  
+            var res_json = response.data;
+         
+            console.log(`[${new Date().toISOString()}]` + " [1-4. 영상 분석 response to FE] :: ");
+          
+            return res_json;
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+
+    
     return response.data;
 };
