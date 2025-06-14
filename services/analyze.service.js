@@ -70,9 +70,64 @@ exports.sendAnalyzeRequest = async (url, userEmail) => {
 };
 
 exports.parseRawAnalyzedData = async (rawData) => {
+    const meta           = rawData.meta;
+    const analysis_input = rawData.analysis_input;
 
+    const videoEntity       = transformResponseData(meta, analysis_input);
+    const timelineEntities = transformTimeline(meta.id, analysis_input.Timeline || []);
+    
+    return { videoEntity, timelineEntities };
 };
 
 exports.recordAnalyzedData = async (parsedData) => {
     return true;
 };
+
+function transformResponseData(meta, analysis_input) {
+    return new ReelsVideoEntity({
+        reels_id: meta.id,
+        upload_date: new Date(
+          `${meta.upload_date.slice(0, 4)}-${meta.upload_date.slice(4, 6)}-${meta.upload_date.slice(6)}`
+        ),
+        video_name: meta.title || analysis_input.Title,
+        creator_description: meta.description || null,
+        video_length: meta.duration,
+        resolution: `${meta.width}x${meta.height}`,
+        music_info: null,
+        view_count: meta.view_count,
+        play_count: null,
+        like_count: meta.like_count,
+        comment_count: meta.comment_count,
+        thumbnail_url: meta.thumbnail,
+        platform: 'YouTube',
+        owner_name: meta.uploader,
+        owner_img: null,
+        owner_follow: null,
+        content_details: null,
+        topic_description: null,
+        topic_list: analysis_input?.Tags?.['Topic Tag'] || null,
+        genre_list: analysis_input?.Tags?.['Genre Tag'] || null,
+        format_list: analysis_input?.Tags?.['Format Tag'] || null,
+        one_line_summary: analysis_input['One-Line Content Summary'],
+        summary: analysis_input.Summary,
+        hook_tag: analysis_input['Hook Tag'],
+        hook_overall_summary: analysis_input['Comprehensive Hook Summary'],
+        visual_hook_summary: analysis_input['Visual Hook']?.['Visual Hook Summary'] || null,
+        sound_hook_script: analysis_input['Sound Hook']?.['Script'] || null,
+        sound_hook_summary: analysis_input['Sound Hook']?.['Sound Hook Summary'] || null,
+        text_hook_content: analysis_input['Text Hook']?.['Text Content'] || null,
+        text_hook_summary: analysis_input['Text Hook']?.['Text Hook Summary'] || null,
+        user_email: null,
+        user_idx: null
+      });
+}
+
+function transformTimeline(reels_id, timelineArr) {
+    return timelineArr.map(item => new TimelineEntity({
+      reels_id,
+      scene_start: item["Scene Start"],
+      scene_end: item["Scene End"],
+      scene_description: item["Scene Description"],
+      dialogue: item["Dialogue"]
+    }));
+  }
