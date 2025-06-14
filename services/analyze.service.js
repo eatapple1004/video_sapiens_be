@@ -65,9 +65,14 @@ exports.sendAnalyzeRequest = async (url, userEmail) => {
             return res_json;
         })
         .catch(function (error) {
-            console.log(error);
+            logger.warn(error);
         });
+};
 
-    
-    return response.data;
+exports.parseRawAnalyzedData = async (rawData) => {
+
+};
+
+exports.recordAnalyzedData = async (parsedData) => {
+    return true;
 };

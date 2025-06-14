@@ -11,3 +11,8 @@ exports.insertAnalyzeRequest = async ({ userIdx, videoId, platform, originalUrl 
   logger.info("analyze_request idx :: " + result.rows[0].idx);
   return result.rows[0].idx;
 };
+
+exports.insertAnalyzedData = async ({ userIdx, videoId, platform, originalUrl }) => {
+  
+  return result.rows[0].idx;
+};

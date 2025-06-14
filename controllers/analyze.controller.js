@@ -9,8 +9,23 @@ exports.analyzeVideo = async (req, res) => {
     if (!url) return res.status(400).json({ error: "URL is required" });
 
     try {
-        const result = await analyzeService.sendAnalyzeRequest(url, req.userEmail);
-        res.status(200).json(result);
+        // ai 분석 요청 보내고 분석 결과 받기
+        const rawData    = await analyzeService.sendAnalyzeRequest(url, req.userEmail);
+        
+        // 분석 결과 데이터 파싱
+        const parsedData = await analyzeService.parseRawAnalyzedData(rawData);
+
+        // 파싱 데이터 저장
+        const isSaved    = await analyzeService.recordAnalyzedData(parsedData);
+
+        // 분석 내용 보내기
+        if(isSaved) {
+            res.status(200).json(parsedData);
+        }
+        else {
+            res.status(500).json({ error: "분석 요청 실패" });
+        }
+        
     } catch (err) {
         console.error("분석 중 오류:", err);
         res.status(500).json({ error: "분석 요청 실패" });
