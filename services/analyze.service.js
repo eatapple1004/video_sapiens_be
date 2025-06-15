@@ -2,6 +2,9 @@ const axios = require("axios");
 
 const usersRepository   = require("../repositories/user.repository");
 const analyzeRepository = require("../repositories/analyze.repository");
+const ReelsVideoEntity  = require('../entities/ReelsVideoEntity');
+const TimelineEntity    = require('../entities/TimelineEntity');
+
 const logger = require("../utils/logger");
 
 const DEF_AI_DEV_URL = process.env.DEF_AI_DEV_URL;

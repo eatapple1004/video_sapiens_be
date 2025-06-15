@@ -13,12 +13,12 @@ exports.analyzeVideo = async (req, res) => {
         const rawData    = await analyzeService.sendAnalyzeRequest(url, req.userEmail);
         
         // 분석 결과 데이터 파싱
-        const parsedData = await analyzeService.parseRawAnalyzedData(rawData);
+        const { videoEntity, timelineEntities } = await analyzeService.parseRawAnalyzedData(rawData);
 
         // 파싱 데이터 저장
         const isSaved    = await analyzeService.recordAnalyzedData(parsedData);
 
-        // 분석 내용 보내기
+        // 분석 내용 보내기 
         if(isSaved) {
             res.status(200).json(parsedData);
         }
