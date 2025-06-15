@@ -65,28 +65,30 @@ exports.sendAnalyzeRequest = async (url, userEmail) => {
          
             console.log(`[${new Date().toISOString()}]` + " [1-4. 영상 분석 response to FE] :: ");
           
-            return res_json;
+            return { res_json, userIdx };
         })
         .catch(function (error) {
             logger.warn(error);
         });
 };
 
-exports.parseRawAnalyzedData = async (rawData) => {
+exports.parseRawAnalyzedData = async (rawData, userIdx) => {
     const meta           = rawData.meta;
     const analysis_input = rawData.analysis_input;
 
-    const videoEntity       = transformResponseData(meta, analysis_input);
+    const videoEntity       = transformResponseData(meta, analysis_input , userIdx);
     const timelineEntities = transformTimeline(meta.id, analysis_input.Timeline || []);
     
     return { videoEntity, timelineEntities };
 };
 
-exports.recordAnalyzedData = async (parsedData) => {
+exports.recordAnalyzedData = async (videoEntity, timelineEntities) => {
+
+
     return true;
 };
 
-function transformResponseData(meta, analysis_input) {
+function transformResponseData(meta, analysis_input, userIdx) {
     return new ReelsVideoEntity({
         reels_id: meta.id,
         upload_date: new Date(
@@ -121,7 +123,7 @@ function transformResponseData(meta, analysis_input) {
         text_hook_content: analysis_input['Text Hook']?.['Text Content'] || null,
         text_hook_summary: analysis_input['Text Hook']?.['Text Hook Summary'] || null,
         user_email: null,
-        user_idx: null
+        user_idx: userIdx
       });
 }
 

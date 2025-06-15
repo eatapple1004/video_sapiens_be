@@ -10,13 +10,13 @@ exports.analyzeVideo = async (req, res) => {
 
     try {
         // ai 분석 요청 보내고 분석 결과 받기
-        const rawData    = await analyzeService.sendAnalyzeRequest(url, req.userEmail);
+        const { rawData, userIdx }    = await analyzeService.sendAnalyzeRequest(url, req.userEmail);
         
         // 분석 결과 데이터 파싱
-        const { videoEntity, timelineEntities } = await analyzeService.parseRawAnalyzedData(rawData);
+        const { videoEntity, timelineEntities } = await analyzeService.parseRawAnalyzedData(rawData, userIdx);
 
         // 파싱 데이터 저장
-        const isSaved    = await analyzeService.recordAnalyzedData(parsedData);
+        const isSaved    = await analyzeService.recordAnalyzedData(videoEntity, timelineEntities);
 
         // 분석 내용 보내기 
         if(isSaved) {

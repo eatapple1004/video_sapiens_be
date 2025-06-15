@@ -12,7 +12,66 @@ exports.insertAnalyzeRequest = async ({ userIdx, videoId, platform, originalUrl 
   return result.rows[0].idx;
 };
 
-exports.insertAnalyzedData = async ({ userIdx, videoId, platform, originalUrl }) => {
-  
-  return result.rows[0].idx;
+
+exports.insertReelsVideo = async (videoEntity) => {
+  const sql = `
+    INSERT INTO reels_videos (
+      reels_id, upload_date, video_name, creator_description, video_length, resolution,
+      music_info, view_count, play_count, like_count, comment_count, thumbnail_url,
+      platform, owner_name, owner_img, owner_follow, content_details,
+      topic_description, topic_list, genre_list, format_list,
+      one_line_summary, summary, hook_tag, hook_overall_summary,
+      visual_hook_summary, sound_hook_script, sound_hook_summary,
+      text_hook_content, text_hook_summary, user_email, user_idx
+    )
+    VALUES (
+      $1, $2, $3, $4, $5, $6,
+      $7, $8, $9, $10, $11, $12,
+      $13, $14, $15, $16, $17,
+      $18, $19, $20, $21, $22,
+      $23, $24, $25, $26,
+      $27, $28, $29,
+      $30, $31, $32, $33
+    )
+    ON CONFLICT (reels_id) DO NOTHING
+    RETURNING idx;
+  `;
+
+  const values = [
+    videoEntity.reels_id,
+    videoEntity.upload_date,
+    videoEntity.video_name,
+    videoEntity.creator_description,
+    videoEntity.video_length,
+    videoEntity.resolution,
+    videoEntity.music_info,
+    videoEntity.view_count,
+    videoEntity.play_count,
+    videoEntity.like_count,
+    videoEntity.comment_count,
+    videoEntity.thumbnail_url,
+    videoEntity.platform,
+    videoEntity.owner_name,
+    videoEntity.owner_img,
+    videoEntity.owner_follow,
+    videoEntity.content_details,
+    videoEntity.topic_description,
+    videoEntity.topic_list,
+    videoEntity.genre_list,
+    videoEntity.format_list,
+    videoEntity.one_line_summary,
+    videoEntity.summary,
+    videoEntity.hook_tag,
+    videoEntity.hook_overall_summary,
+    videoEntity.visual_hook_summary,
+    videoEntity.sound_hook_script,
+    videoEntity.sound_hook_summary,
+    videoEntity.text_hook_content,
+    videoEntity.text_hook_summary,
+    videoEntity.user_email,
+    videoEntity.user_idx,
+  ];
+
+  const result = await db.oneOrNone(sql, values);
+  return result?.idx || null;
 };
