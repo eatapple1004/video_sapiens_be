@@ -20,7 +20,7 @@ exports.analyzeVideo = async (req, res) => {
 
         // 분석 내용 보내기 
         if(isSaved) {
-            res.status(200).json(parsedData);
+            res.status(200).json(videoEntity);
         }
         else {
             res.status(500).json({ error: "분석 요청 실패" });

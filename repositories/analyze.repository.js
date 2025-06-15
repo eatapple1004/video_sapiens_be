@@ -75,3 +75,23 @@ exports.insertReelsVideo = async (videoEntity) => {
   const result = await db.oneOrNone(sql, values);
   return result?.idx || null;
 };
+
+
+exports.insertTimelineBatch = async (timelineEntities) => {
+  const sql = `
+    INSERT INTO reels_timeline (
+      reels_id, scene_start, scene_end, scene_description, dialogue
+    ) VALUES 
+    ${timelineEntities.map((_, idx) => `($${idx * 5 + 1}, $${idx * 5 + 2}, $${idx * 5 + 3}, $${idx * 5 + 4}, $${idx * 5 + 5})`).join(", ")}
+  `;
+
+  const values = timelineEntities.flatMap(entity => [
+    entity.reels_id,
+    entity.scene_start,
+    entity.scene_end,
+    entity.scene_description,
+    entity.dialogue
+  ]);
+
+  return await db.none(sql, values);
+};

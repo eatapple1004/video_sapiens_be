@@ -72,11 +72,11 @@ exports.sendAnalyzeRequest = async (url, userEmail) => {
         });
 };
 
-exports.parseRawAnalyzedData = async (rawData, userIdx) => {
+exports.parseRawAnalyzedData = async (rawData, userIdx, platform) => {
     const meta           = rawData.meta;
     const analysis_input = rawData.analysis_input;
 
-    const videoEntity       = transformResponseData(meta, analysis_input , userIdx);
+    const videoEntity       = transformResponseData(meta, analysis_input , userIdx, platform);
     const timelineEntities = transformTimeline(meta.id, analysis_input.Timeline || []);
     
     return { videoEntity, timelineEntities };
@@ -84,11 +84,25 @@ exports.parseRawAnalyzedData = async (rawData, userIdx) => {
 
 exports.recordAnalyzedData = async (videoEntity, timelineEntities) => {
 
+    try {
+        const videoIdx = await reelsVideoRepository.insertReelsVideo(videoEntity);
+        //console.log(`[DB] video 저장 완료: idx = ${videoIdx}`);
+    
+        if (timelineEntities.length > 0) {
+          await timelineRepository.insertTimelineBatch(timelineEntities);
+          //console.log(`[DB] timeline ${timelineEntities.length}개 저장 완료`);
+        }
+    
+        return true;
+    } catch (err) {
+        console.error("❌ recordAnalyzedData 실패:", err);
+        throw err;
+    }
 
     return true;
 };
 
-function transformResponseData(meta, analysis_input, userIdx) {
+function transformResponseData(meta, analysis_input, userIdx, platform) {
     return new ReelsVideoEntity({
         reels_id: meta.id,
         upload_date: new Date(
@@ -104,7 +118,7 @@ function transformResponseData(meta, analysis_input, userIdx) {
         like_count: meta.like_count,
         comment_count: meta.comment_count,
         thumbnail_url: meta.thumbnail,
-        platform: 'YouTube',
+        platform: platform,
         owner_name: meta.uploader,
         owner_img: null,
         owner_follow: null,
