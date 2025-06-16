@@ -16,22 +16,22 @@ exports.insertAnalyzeRequest = async ({ userIdx, videoId, platform, originalUrl 
 exports.insertReelsVideo = async (videoEntity) => {
   const sql = `
     INSERT INTO reels_videos (
-      reels_id, upload_date, video_name, creator_description, video_length, resolution,
-      music_info, view_count, play_count, like_count, comment_count, thumbnail_url,
-      platform, owner_name, owner_img, owner_follow, content_details,
-      topic_description, topic_list, genre_list, format_list,
-      one_line_summary, summary, hook_tag, hook_overall_summary,
-      visual_hook_summary, sound_hook_script, sound_hook_summary,
-      text_hook_content, text_hook_summary, user_email, user_idx
+      reels_id, upload_date, video_name, creator_description, video_length, 
+      resolution, music_info, view_count, play_count, like_count, 
+      comment_count, thumbnail_url, platform, owner_name, owner_img, 
+      owner_follow, content_details, topic_description, topic_list, genre_list, 
+      format_list, one_line_summary, summary, hook_tag, hook_overall_summary,
+      visual_hook_summary, sound_hook_script, sound_hook_summary, text_hook_content, text_hook_summary,
+      user_email, user_idx
     )
     VALUES (
-      $1, $2, $3, $4, $5, $6,
-      $7, $8, $9, $10, $11, $12,
-      $13, $14, $15, $16, $17,
-      $18, $19, $20, $21, $22,
-      $23, $24, $25, $26,
-      $27, $28, $29,
-      $30, $31, $32, $33
+      $1, $2, $3, $4, $5, 
+      $6, $7, $8, $9, $10, 
+      $11, $12, $13, $14, $15, 
+      $16, $17, $18, $19, $20, 
+      $21, $22, $23, $24, $25, 
+      $26, $27, $28, $29, $30, 
+      $31, $32
     )
     ON CONFLICT (reels_id) DO NOTHING
     RETURNING idx;
@@ -72,26 +72,40 @@ exports.insertReelsVideo = async (videoEntity) => {
     videoEntity.user_idx,
   ];
 
-  const result = await db.oneOrNone(sql, values);
-  return result?.idx || null;
+  const result = await db.query(sql, values); // result.rows[0]?.idx
+
+  if (result.rows.length > 0) {
+    // INSERT 성공한 경우
+    return result.rows[0].idx;
+  } else {
+    // INSERT 무시된 경우 → 기존 데이터의 idx 조회
+    logger.info("reels_id :: "+videoEntity.reels_id)
+    const existing = await db.query(
+      `SELECT idx FROM reels_videos WHERE reels_id = $1`,
+      [videoEntity.reels_id]
+    );
+    logger.info("idx ::" + existing.rows[0].idx)
+    return existing.rows[0]?.idx || null;
+  }
+
 };
 
 
 exports.insertTimelineBatch = async (timelineEntities) => {
   const sql = `
     INSERT INTO reels_timeline (
-      reels_id, scene_start, scene_end, scene_description, dialogue
+      video_idx, scene_start, scene_end, scene_description, dialogue
     ) VALUES 
     ${timelineEntities.map((_, idx) => `($${idx * 5 + 1}, $${idx * 5 + 2}, $${idx * 5 + 3}, $${idx * 5 + 4}, $${idx * 5 + 5})`).join(", ")}
   `;
 
   const values = timelineEntities.flatMap(entity => [
-    entity.reels_id,
+    entity.video_idx,
     entity.scene_start,
     entity.scene_end,
     entity.scene_description,
     entity.dialogue
   ]);
 
-  return await db.none(sql, values);
+  return await db.query(sql, values);
 };

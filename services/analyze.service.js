@@ -2,8 +2,8 @@ const axios = require("axios");
 
 const usersRepository   = require("../repositories/user.repository");
 const analyzeRepository = require("../repositories/analyze.repository");
-const ReelsVideoEntity  = require('../entities/ReelsVideoEntity');
-const TimelineEntity    = require('../entities/TimelineEntity');
+const ReelsVideoEntity  = require('../model/ReelsVideoEntity');
+const TimelineEntity    = require('../model/TimelineEntity');
 
 const logger = require("../utils/logger");
 
@@ -15,6 +15,8 @@ exports.sendAnalyzeRequest = async (url, userEmail) => {
     logger.info(userEmail)
     let platform = null;
     let videoId = null;
+
+    logger.info("[1_2. analyze video] record analyze attemp:: " + videoId);
 
     if (url.includes("youtube.com/shorts") || url.includes("youtube")) {
         platform = "YouTube";
@@ -57,42 +59,43 @@ exports.sendAnalyzeRequest = async (url, userEmail) => {
         data: body,
     };
 
-    axios(config)
-        .then(function (response) {
-            console.log(`[${new Date().toISOString()}]` + " [1-3. 영상 분석 response from bhBE] :: " );//+ JSON.stringify(response.data));
-  
-            var res_json = response.data;
-         
-            console.log(`[${new Date().toISOString()}]` + " [1-4. 영상 분석 response to FE] :: ");
-          
-            return { res_json, userIdx };
-        })
-        .catch(function (error) {
-            logger.warn(error);
-        });
+    try {
+        const response = await axios(config);
+        const res_json = response.data;
+        logger.info("[1_3. analyze video] response from AIBE :: " + JSON.stringify(res_json));
+        return { rawData: res_json, userIdx };
+    } catch (error) {
+        logger.warn(error);
+        throw new Error("AI 분석 요청 실패");
+    }
 };
 
 exports.parseRawAnalyzedData = async (rawData, userIdx, platform) => {
+    logger.info("[1_4. analyze video] start parse :: " + userIdx);
     const meta           = rawData.meta;
     const analysis_input = rawData.analysis_input;
 
     const videoEntity       = transformResponseData(meta, analysis_input , userIdx, platform);
-    const timelineEntities = transformTimeline(meta.id, analysis_input.Timeline || []);
     
-    return { videoEntity, timelineEntities };
+    logger.info("[1_5. analyze video] end parse :: " + userIdx);
+    return { videoEntity, analysis_input };
 };
 
-exports.recordAnalyzedData = async (videoEntity, timelineEntities) => {
+exports.recordAnalyzedData = async (videoEntity, analysis_input) => {
 
     try {
-        const videoIdx = await reelsVideoRepository.insertReelsVideo(videoEntity);
+        logger.info("[1_6. analyze video] record video entity :: ");
+        const videoIdx = await analyzeRepository.insertReelsVideo(videoEntity);
         //console.log(`[DB] video 저장 완료: idx = ${videoIdx}`);
-    
+        
+        logger.info("[1_7. analyze video] record timeline entity :: " + videoIdx);
+        const timelineEntities = transformTimeline(videoIdx, analysis_input.Timeline || []);
+
         if (timelineEntities.length > 0) {
-          await timelineRepository.insertTimelineBatch(timelineEntities);
+          await analyzeRepository.insertTimelineBatch(timelineEntities, videoIdx);
           //console.log(`[DB] timeline ${timelineEntities.length}개 저장 완료`);
         }
-    
+        
         return true;
     } catch (err) {
         console.error("❌ recordAnalyzedData 실패:", err);
@@ -124,9 +127,9 @@ function transformResponseData(meta, analysis_input, userIdx, platform) {
         owner_follow: null,
         content_details: null,
         topic_description: null,
-        topic_list: analysis_input?.Tags?.['Topic Tag'] || null,
-        genre_list: analysis_input?.Tags?.['Genre Tag'] || null,
-        format_list: analysis_input?.Tags?.['Format Tag'] || null,
+        topic_list: toPgArray(analysis_input?.Tags?.['Topic Tag']),
+        genre_list: toPgArray(analysis_input?.Tags?.['Genre Tag']),
+        format_list: toPgArray(analysis_input?.Tags?.['Format Tag']),
         one_line_summary: analysis_input['One-Line Content Summary'],
         summary: analysis_input.Summary,
         hook_tag: analysis_input['Hook Tag'],
@@ -141,12 +144,18 @@ function transformResponseData(meta, analysis_input, userIdx, platform) {
       });
 }
 
-function transformTimeline(reels_id, timelineArr) {
+function transformTimeline(video_idx, timelineArr) {
     return timelineArr.map(item => new TimelineEntity({
-      reels_id,
-      scene_start: item["Scene Start"],
-      scene_end: item["Scene End"],
-      scene_description: item["Scene Description"],
-      dialogue: item["Dialogue"]
+        video_idx : video_idx,
+        scene_start: item["Scene Start"],
+        scene_end: item["Scene End"],
+        scene_description: item["Scene Description"],
+        dialogue: item["Dialogue"]
     }));
+  }
+
+  function toPgArray(value) {
+    if (!value) return null;
+    if (Array.isArray(value)) return value;
+    return [value]; // "Cute" → ["Cute"]
   }
