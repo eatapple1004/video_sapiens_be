@@ -1,5 +1,5 @@
 const logger = require("../utils/logger");
-
+const searchRepo = require("../repositories/search.repository");
 
 /**
  * 통합 검색 - 데이터베이스 조회 서비스
@@ -9,7 +9,10 @@ const logger = require("../utils/logger");
 exports.integratedSearchReels = async (userInputWord) => {
 
     try{
+        // 데이터 베이스 조회
+        let reelsData;
 
+        return reelsData
     }
     catch(err) {
 
