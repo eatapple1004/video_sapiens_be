@@ -30,12 +30,8 @@ app.use(cors({
 }));
 
 const user_router    = require('./routers/user.router');
-const analyze_router = require('./routers/analyze.router');
-const payment_payment = require('./routers/payment.router');
 
 app.use('/api', user_router);
-app.use('/api', analyze_router);
-app.use('/api', payment_payment);
 
 app.use("/upload", express.static(path.join(__dirname, "/uploads")));
 
