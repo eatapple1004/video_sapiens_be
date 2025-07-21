@@ -25,7 +25,7 @@ exports.integreatedSearch = async (req, res) => {
 
 /**
  * 테그 검색 컨트롤러
- * @param {Query} : 사용자 입력 검색어
+ * @param {Query} req.query : 사용자 입력 검색어
  * @returns {Object} reelsData  : 조건에 부합 하는 릴스 리스트
  */
  exports.tagSearch = async (req, res) => {
