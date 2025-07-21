@@ -30,8 +30,10 @@ app.use(cors({
 }));
 
 const user_router    = require('./routers/user.router');
+const search_router  = require('./routers/search.router');
 
 app.use('/api', user_router);
+app.use('/api', search_router);
 
 app.use("/upload", express.static(path.join(__dirname, "/uploads")));
 
