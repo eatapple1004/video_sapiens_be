@@ -24,3 +24,22 @@ exports.getIntegratedSearchReels = async (userInputWord) => {
     }
 
 }
+
+
+/**
+ * 통합 검색 - 데이터베이스 조회 래포지토리
+ * @param {string} filterQuery : 사용자 맞춤 쿼리
+ * @returns {JSON} ReelsArray : DB조회 결과 - 48개
+ */
+ exports.getFilterSearchReels = async (filterQuery) => {
+
+    try{
+        const result = await db.query(filterQuery);
+        return result.rows;
+    }
+    catch(err) {
+        logger.error('[getFilterSearchReels ERROR] :: ' + err.stack);
+        throw err;
+    }
+
+}

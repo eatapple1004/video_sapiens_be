@@ -111,7 +111,7 @@ exports.makeFilterQuery = async (parsedFilterData) => {
       SELECT *
       FROM post_search
       ${whereClause}
-      ORDER BY view_count DESC
+      ORDER BY like_count DESC
       LIMIT 100;
     `.trim();
 
@@ -122,3 +122,21 @@ exports.makeFilterQuery = async (parsedFilterData) => {
     throw err;
   }
 };
+
+
+/**
+ * 테그 검색 필터 전용 쿼리문 작성
+ * @param {Object} parsedFilterData : 사용자 입력 검색어
+ * @returns {String} filterQuery 전체 SQL 문자열
+ */
+ exports.getReelsDataByTagFilter = async (filterQuery) => {
+    
+    try{
+        const reelsData = await searchRepo.getFilterSearchReels(filterQuery);
+        logger.info('[reelsData] :: ' + JSON.stringify(reelsData, null, 2));
+        return reelsData;
+    }
+    catch(err) {
+
+    }
+}

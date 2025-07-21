@@ -37,7 +37,11 @@ exports.integreatedSearch = async (req, res) => {
         // 2. 필터 데이터 전용 쿼리 작성
         const filterQuery = await searchService.makeFilterQuery(parsedFilterData);
 
-        // 3. send back response
+        // 3. DB에서 reelsData 받아오기
+
+        const reelsData = await searchService.getReelsDataByTagFilter(filterQuery);
+
+        // 4. send back response
 
     }
     catch(err) {
