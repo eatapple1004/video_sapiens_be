@@ -32,7 +32,7 @@ exports.integreatedSearch = async (req, res) => {
 
     try {
         // 1. 검색시 받는 데이터 파싱
-        const parsedFilterData = await searchService.parseUserInputFilter(req.body);
+        const parsedFilterData = await searchService.parseUserInputFilter(req.query);
 
         // 2. 필터 데이터 전용 쿼리 작성
         const filterQuery = await searchService.makeFilterQuery(parsedFilterData);

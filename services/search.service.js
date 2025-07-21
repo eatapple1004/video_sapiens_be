@@ -42,28 +42,42 @@ exports.parseReelsData = async (reelsData) => {
  */
  exports.parseUserInputFilter = async (userInputFilter) => {
     
-    try{
+    try {
         const parsedFilterData = {};
-
+    
         for (const [key, value] of Object.entries(userInputFilter)) {
-            // null / undefined 제거
-            if (value == null) continue;
-
-            // 빈 배열 제거
-            if (Array.isArray(value) && value.length === 0) continue;
-
-            // string 빈 문자열 제거
-            if (typeof value === 'string' && value.trim() === '') continue;
-
-            parsedFilterData[key] = value;
+          if (value == null) continue;
+    
+          // 빈 문자열 제거
+          if (typeof value === 'string' && value.trim() === '') continue;
+    
+          // 배열로 처리해야 할 필드들
+          const arrayFields = ['topic', 'genre', 'format'];
+    
+          if (arrayFields.includes(key)) {
+            // "ai,tech" → ['ai', 'tech']
+            const parsedArray = value.split(',').map(v => v.trim()).filter(v => v !== '');
+            if (parsedArray.length > 0) {
+              parsedFilterData[key] = parsedArray;
+            }
+          } else if (['views', 'likes'].includes(key)) {
+            // 숫자 파라미터 변환
+            const numberValue = parseInt(value);
+            if (!isNaN(numberValue)) {
+              parsedFilterData[key] = numberValue;
+            }
+          } else {
+            // 일반 문자열 필터
+            parsedFilterData[key] = value.trim();
+          }
         }
-
+    
         return parsedFilterData;
-    }
-    catch(err) {
+    
+      } catch (err) {
         logger.error("[ Tag Search, parseUserInputFilter ERROR ] :: " + err.stack);
         throw err;
-    }
+      }
 }
 
 
