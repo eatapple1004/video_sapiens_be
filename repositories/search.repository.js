@@ -38,7 +38,7 @@ exports.getIntegratedSearchReels = async (userInputWord) => {
         return result.rows;
     }
     catch(err) {
-        logger.error('[getFilterSearchReels ERROR] :: ' + err.stack);
+        logger.error('[Tag Search, Repository, getFilterSearchReels ERROR] :: ' + err.stack);
         throw err;
     }
 

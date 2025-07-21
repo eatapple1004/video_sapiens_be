@@ -137,6 +137,7 @@ exports.makeFilterQuery = async (parsedFilterData) => {
         return reelsData;
     }
     catch(err) {
-
+        logger.error("[ Tag Search, getReelsDataByTagFilter ERROR ] :: " + err.stack);
+        throw err;
     }
 }
