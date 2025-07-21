@@ -35,8 +35,7 @@ exports.integreatedSearch = async (req, res) => {
         const parsedFilterData = await searchService.parseUserInputFilter(req.body);
 
         // 2. 필터 데이터 전용 쿼리 작성
-        
-        
+        const filterQuery = await searchService.makeFilterQuery(parsedFilterData);
 
         // 3. send back response
 
