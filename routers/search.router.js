@@ -5,10 +5,10 @@ const searchController = require('../controllers/analyze.controller');
 
 
 //진행중
-router.get("/search/integrated", searchController.integreatedsearch);
+router.get("/search/integrated", searchController.integreatedSearch);
+router.post("/search/tag", searchController.tagSearch);
 
 //진행 예정
-router.get("/search/tag");
 router.get("/search/creator");
 
 module.exports = router;
