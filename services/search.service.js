@@ -117,7 +117,7 @@ exports.makeFilterQuery = async (parsedFilterData) => {
       FROM post_search
       ${whereClause}
       ORDER BY like_count DESC
-      LIMIT 100;
+      LIMIT 48;
     `.trim();
 
     return filterQuery;
