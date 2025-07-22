@@ -113,11 +113,11 @@ exports.makeFilterQuery = async (parsedFilterData) => {
     const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
 
     const filterQuery = `
-      SELECT *
-      FROM post_search
-      ${whereClause}
-      ORDER BY like_count DESC
-      LIMIT 48;
+        SELECT *
+        FROM post_search
+        ${whereClause}
+        ORDER BY like_count DESC
+        LIMIT 48;
     `.trim();
 
     return filterQuery;
