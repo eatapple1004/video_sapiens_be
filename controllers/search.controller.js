@@ -29,12 +29,12 @@ exports.integreatedSearch = async (req, res) => {
  * @returns {Object} reelsData  : 조건에 부합 하는 릴스 리스트
  */
  exports.tagSearch = async (req, res) => {
-
+    
     try {
         // 1. 검색시 받는 데이터 파싱
         const parsedFilterData = await searchService.parseUserInputFilter(req.query);
         console.log('[parsedFilterData] ::', JSON.stringify(parsedFilterData, null, 2));
-        
+
         // 2. 필터 데이터 전용 쿼리 작성
         const filterQuery = await searchService.makeFilterQuery(parsedFilterData);
         logger.info(filterQuery);
