@@ -52,7 +52,7 @@ exports.parseReelsData = async (reelsData) => {
           if (typeof value === 'string' && value.trim() === '') continue;
     
           // 배열로 처리해야 할 필드들
-          const arrayFields = ['topic', 'genre', 'format'];
+          const arrayFields = ['platform', 'topic', 'genre', 'format'];
     
           if (arrayFields.includes(key)) {
             // "ai,tech" → ['ai', 'tech']
@@ -91,19 +91,24 @@ exports.makeFilterQuery = async (parsedFilterData) => {
     const conditions = [];
 
     for (const [key, value] of Object.entries(parsedFilterData)) {
-      if (key === 'views') {
-        conditions.push(`view_count >= ${value}`);
-      } else if (key === 'likes') {
-        conditions.push(`like_count >= ${value}`);
-      } else if (key === 'platform') {
-        conditions.push(`platform = '${value}'`);
-      } else if (['topic', 'genre', 'format'].includes(key)) {
-        if (Array.isArray(value) && value.length > 0) {
-          const formattedArray = value.map(v => `'${v}'`).join(', ');
-          conditions.push(`${key} @> ARRAY[${formattedArray}]::text[]`);
+        if (key === 'views') { conditions.push(`view_count >= ${value}`); } 
+        else if (key === 'likes') { conditions.push(`like_count >= ${value}`); } 
+        else if (key === 'platform') {
+            if (Array.isArray(value)) {
+                const platformConditions = value.map(v => `platform = '${v}'`);
+                conditions.push(`(${platformConditions.join(' OR ')})`);
+            } 
+            else {
+                conditions.push(`platform = '${value}'`);
+            }
+        } 
+        else if (['topic', 'genre', 'format'].includes(key)) {
+            if (Array.isArray(value) && value.length > 0) {
+                const formattedArray = value.map(v => `'${v}'`).join(', ');
+                conditions.push(`${key} @> ARRAY[${formattedArray}]::text[]`);
+            }
         }
       }
-    }
 
     const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
 
