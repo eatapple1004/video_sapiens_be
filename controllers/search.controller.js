@@ -33,12 +33,13 @@ exports.integreatedSearch = async (req, res) => {
     try {
         // 1. 검색시 받는 데이터 파싱
         const parsedFilterData = await searchService.parseUserInputFilter(req.query);
-
+        console.log('[parsedFilterData] ::', JSON.stringify(parsedFilterData, null, 2));
+        
         // 2. 필터 데이터 전용 쿼리 작성
         const filterQuery = await searchService.makeFilterQuery(parsedFilterData);
+        logger.info(filterQuery);
 
         // 3. DB에서 reelsData 받아오기
-
         const reelsData = await searchService.getReelsDataByTagFilter(filterQuery);
 
         // 4. send back response   
