@@ -109,3 +109,30 @@ exports.insertTimelineBatch = async (timelineEntities) => {
 
   return await db.query(sql, values);
 };
+
+
+exports.getSearchResult = async (filterWhere) => {
+  const query = `
+    SELECT 
+      p.thumbnail_url,
+      p.like_count,
+      p.video_view_count,
+      c.profile_image_url,
+      c.creator_username
+    FROM analyzed_video a
+    JOIN post p ON a.video_idx = p.idx
+    JOIN creator c ON p.creator_idx = c.idx
+    ${filterWhere}
+    ORDER BY p.like_count DESC
+    LIMIT 48;
+  `;
+
+  try {
+    const result = await pool.query(query);
+    return result.rows;
+  }
+  catch(err) {
+    logger.error('[search.repository.findSearchResult] ERROR:' + err.stack);
+    throw err;
+  }
+}

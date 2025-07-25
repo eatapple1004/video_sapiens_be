@@ -1,6 +1,6 @@
 const logger = require('../utils/logger');
 const searchService = require("../services/search.service")
-
+const SearchResultVO = require('../model/searchResultVO')
 /**
  * 통합 검색 컨트롤러
  * @param {string} userInputWord : 사용자 입력 검색어
@@ -38,13 +38,13 @@ exports.integreatedSearch = async (req, res) => {
         const filterWhere = await searchService.makeFilterWhereClause(parsedFilterData);
         
         // 3. DB에서 검색 결과 받아오기
-        const searchResult = await searchService.getReelsDataByTagFilter(filterWhere);
+        const searchResultVOList = await searchService.getSearchResult(filterWhere);
 
         // 4. DB에서 분석 결과 받아오기 
         const analyzedResult = await searchService.getReelsDataByTagFilter(filterWhere);
 
         // 5. 검색 결과 & 분석 결과 데이터 파싱
-        
+
 
         // 6. send back response   
         

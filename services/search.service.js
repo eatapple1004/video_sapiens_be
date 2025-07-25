@@ -1,6 +1,6 @@
 const logger = require("../utils/logger");
 const searchRepo = require("../repositories/search.repository");
-
+const SearchResultVO = require('../model/searchResultVO');
 /**
  * 통합 검색 - 데이터베이스 조회 서비스
  * @param {string} userInputWord : 사용자 입력 검색어
@@ -127,7 +127,22 @@ exports.parseReelsData = async (reelsData) => {
  * @returns {String} whereClause : WHERE 조건절만 반환
  */
 exports.getSearchResult = async (filterWhere) => {
+  try {
+    const rows = await searchRepo.getSearchResult(filterWhere);
 
+    const searchResultVOList = rows.map(row => new SearchResultVO({
+      thumbnailUrl: row.thumbnail_url,
+      likeCount: row.like_count,
+      videoViewCount: row.video_view_count,
+      profileImageUrl: row.profile_image_url,
+      creatorUsername: row.creator_username
+    }));
+
+    return searchResultVOList;
+  }
+  catch(err) {
+
+  }
 }
 
 
