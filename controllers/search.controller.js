@@ -34,18 +34,18 @@ exports.integreatedSearch = async (req, res) => {
         // 1. 검색시 받는 데이터 파싱
         const parsedFilterData = await searchService.parseUserInputFilter(req.query);
        
-        // 2. 필터 데이터 전용 쿼리 작성
-        const filterQuery = await searchService.makeFilterQuery(parsedFilterData);
+        // 2. 필터 데이터 전용 where절 작성
+        const filterWhere = await searchService.makeFilterQuery(parsedFilterData);
         
-        // 3. DB에서 reelsData 받아오기
-        const reelsData = await searchService.getReelsDataByTagFilter(filterQuery);
+        // 3. DB에서 검색 결과 받아오기
+        const reelsData = await searchService.getReelsDataByTagFilter(filterWhere);
 
-        // 4. send back response   
-        res.status(200).json({
-            success: true,
-            count: reelsData.length,
-            data: reelsData
-        });
+        // 4. DB에서 분석 결과 받아오기 
+
+        // 5. 검색 결과 & 분석 결과 데이터 파싱
+
+        // 6. send back response   
+        
     }
     catch(err) {
         logger.error('[Tag Search, Controller ,tagSearch ERROR] :: ' + err.stack);
