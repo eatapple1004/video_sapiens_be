@@ -35,14 +35,16 @@ exports.integreatedSearch = async (req, res) => {
         const parsedFilterData = await searchService.parseUserInputFilter(req.query);
        
         // 2. 필터 데이터 전용 where절 작성
-        const filterWhere = await searchService.makeFilterQuery(parsedFilterData);
+        const filterWhere = await searchService.makeFilterWhereClause(parsedFilterData);
         
         // 3. DB에서 검색 결과 받아오기
-        const reelsData = await searchService.getReelsDataByTagFilter(filterWhere);
+        const searchResult = await searchService.getReelsDataByTagFilter(filterWhere);
 
         // 4. DB에서 분석 결과 받아오기 
+        const analyzedResult = await searchService.getReelsDataByTagFilter(filterWhere);
 
         // 5. 검색 결과 & 분석 결과 데이터 파싱
+        
 
         // 6. send back response   
         

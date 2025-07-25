@@ -82,6 +82,56 @@ exports.parseReelsData = async (reelsData) => {
 
 
 /**
+ * 테그 검색 필터 전용 WHERE 조건절 생성기 (a. 접두어 포함)
+ * @param {Object} parsedFilterData : 사용자 입력 검색어
+ * @returns {String} whereClause : WHERE 조건절만 반환
+ */
+ exports.makeFilterWhereClause = async (parsedFilterData) => {
+  try {
+    const conditions = [];
+
+    for (const [key, value] of Object.entries(parsedFilterData)) {
+      if (key === 'views') {
+        conditions.push(`a.view_count >= ${value}`);
+      } 
+      else if (key === 'likes') {
+        conditions.push(`a.like_count >= ${value}`);
+      } 
+      else if (key === 'platform') {
+        if (Array.isArray(value)) {
+          const platformConditions = value.map(v => `a.platform = '${v}'`);
+          conditions.push(`(${platformConditions.join(' OR ')})`);
+        } else {
+          conditions.push(`a.platform = '${value}'`);
+        }
+      } 
+      else if (['topic', 'genre', 'format'].includes(key)) {
+        if (Array.isArray(value) && value.length > 0) {
+          const formattedArray = value.map(v => `'${v}'`).join(', ');
+          conditions.push(`a.${key} @> ARRAY[${formattedArray}]::text[]`);
+        }
+      }
+    }
+
+    return conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
+
+  } catch (err) {
+    logger.error("[ Tag Search, makeFilterWhereClause ERROR ] :: " + err.stack);
+    throw err;
+  }
+};
+
+
+/**
+ * @param {Object} filterWhere : where 문
+ * @returns {String} whereClause : WHERE 조건절만 반환
+ */
+exports.getSearchResult = async (filterWhere) => {
+
+}
+
+
+/**
  * 테그 검색 필터 전용 쿼리문 작성
  * @param {Object} parsedFilterData : 사용자 입력 검색어
  * @returns {String} filterQuery 전체 SQL 문자열
