@@ -135,7 +135,7 @@ exports.getSearchResultRepo = async (filterWhere) => {
     logger.error('[search.repository.findSearchResult] ERROR:' + err.stack);
     throw err;
   }
-}
+};
 
 exports.getAnalyzedResultRepo = async (filterWhere) => {
   const query = `

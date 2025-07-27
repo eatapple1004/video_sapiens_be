@@ -4,13 +4,6 @@ const SearchResultVO = require('../model/searchResultVO');
 const AnalyzedResultVO = require('../model/analyzedResultVO');
 const MergedSearchAndAnalyzedResultDTO = require('../model/MergedSearchAndAnalyzedResultDTO');
 
-const mergedList = searchResultVOList.map((searchVO, idx) => {
-  const analyzedVO = analyzedResultVOList[idx];
-  return new MergedSearchAndAnalyzedResultDTO({
-    searchResult: searchVO,
-    analyzedResult: analyzedVO
-  });
-});
 
 /**
  * 통합 검색 - 데이터베이스 조회 서비스
@@ -154,7 +147,7 @@ exports.getSearchResult = async (filterWhere) => {
   catch(err) {
 
   }
-}
+};
 
 
 /**
@@ -165,7 +158,7 @@ exports.getSearchResult = async (filterWhere) => {
   try {
     const rows = await searchRepo.getAnalyzedResultRepo(filterWhere);
 
-    const resultVOList = rows.map(row => new AnalyzedResultVO({
+    const analyzedResultVOList = rows.map(row => new AnalyzedResultVO({
       platformIconUrl: row.platform_icon_url,
       title: row.title,
       profileImageUrl: row.profile_image_url,
