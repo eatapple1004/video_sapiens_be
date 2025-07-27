@@ -1,6 +1,7 @@
 const logger = require('../utils/logger');
-const searchService = require("../services/search.service")
-const SearchResultVO = require('../model/searchResultVO')
+const searchService = require("../services/search.service");
+const SearchResultVO = require('../model/searchResultVO');
+const AnalyzedResultVO = require('../model/analyzedResultVO');
 /**
  * 통합 검색 컨트롤러
  * @param {string} userInputWord : 사용자 입력 검색어
@@ -41,13 +42,16 @@ exports.integreatedSearch = async (req, res) => {
         const searchResultVOList = await searchService.getSearchResult(filterWhere);
 
         // 4. DB에서 분석 결과 받아오기 
-        const analyzedResult = await searchService.getReelsDataByTagFilter(filterWhere);
+        const analyzedResultVOList = await searchService.getAnalyzedResult(filterWhere);
 
         // 5. 검색 결과 & 분석 결과 데이터 파싱
-
+        const responsePayload = await searchService.mergeSearchAndAnalyzedResult(
+            searchResultVOList,
+            analyzedResultVOList
+          );
 
         // 6. send back response   
-        
+        res.status(200).json(responsePayload);
     }
     catch(err) {
         logger.error('[Tag Search, Controller ,tagSearch ERROR] :: ' + err.stack);

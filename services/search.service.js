@@ -1,6 +1,17 @@
 const logger = require("../utils/logger");
 const searchRepo = require("../repositories/search.repository");
 const SearchResultVO = require('../model/searchResultVO');
+const AnalyzedResultVO = require('../model/analyzedResultVO');
+const MergedSearchAndAnalyzedResultDTO = require('../model/MergedSearchAndAnalyzedResultDTO');
+
+const mergedList = searchResultVOList.map((searchVO, idx) => {
+  const analyzedVO = analyzedResultVOList[idx];
+  return new MergedSearchAndAnalyzedResultDTO({
+    searchResult: searchVO,
+    analyzedResult: analyzedVO
+  });
+});
+
 /**
  * 통합 검색 - 데이터베이스 조회 서비스
  * @param {string} userInputWord : 사용자 입력 검색어
@@ -128,7 +139,7 @@ exports.parseReelsData = async (reelsData) => {
  */
 exports.getSearchResult = async (filterWhere) => {
   try {
-    const rows = await searchRepo.getSearchResult(filterWhere);
+    const rows = await searchRepo.getSearchResultRepo(filterWhere);
 
     const searchResultVOList = rows.map(row => new SearchResultVO({
       thumbnailUrl: row.thumbnail_url,
@@ -144,6 +155,73 @@ exports.getSearchResult = async (filterWhere) => {
 
   }
 }
+
+
+/**
+ * @param {Object} filterWhere : where 문
+ * @returns {String} whereClause : WHERE 조건절만 반환
+ */
+ exports.getAnalyzedResult = async (filterWhere) => {
+  try {
+    const rows = await searchRepo.getAnalyzedResultRepo(filterWhere);
+
+    const resultVOList = rows.map(row => new AnalyzedResultVO({
+      platformIconUrl: row.platform_icon_url,
+      title: row.title,
+      profileImageUrl: row.profile_image_url,
+      creatorUsername: row.creator_username,
+      followers: row.followers,
+      playCount: row.play_count,
+      viewCount: row.view_count,
+      likeCount: row.like_count,
+      commentCount: row.comment_count,
+      caption: row.caption,
+      audioInfo: row.audio_info,
+      topicTag: row.topic_tag,
+      genreTag: row.genre_tag,
+      formatTag: row.format_tag,
+      summary: row.summary,
+      visualHookSummary: row.visual_hook_summary,
+      soundHookSummary: row.sound_hook_summary,
+      textHookSummary: row.text_hook_summary
+    }));
+
+    return analyzedResultVOList;
+  } catch (err) {
+    logger.error('[search.service.getAnalyzedResult] ERROR: ' + err.stack);
+    throw err;
+  }
+};
+
+
+/**
+ * 검색 결과 VO 리스트와 분석 결과 VO 리스트를 병합
+ * @param {SearchResultVO[]} searchResultVOList 
+ * @param {AnalyzedResultVO[]} analyzedResultVOList 
+ * @returns {MergedSearchAndAnalyzedResultDTO[]} 병합된 DTO 리스트
+ */
+ exports.mergeSearchAndAnalyzedResult = async (searchResultVOList, analyzedResultVOList) => {
+  try {
+    if (searchResultVOList.length !== analyzedResultVOList.length) {
+      logger.warn(
+        `[mergeSearchAndAnalyzedResult] 리스트 길이 불일치: search=${searchResultVOList.length}, analyzed=${analyzedResultVOList.length}`
+      );
+    }
+
+    const combinedList = searchResultVOList.map((searchVO, idx) => {
+      const analyzedVO = analyzedResultVOList[idx];
+      return new MergedSearchAndAnalyzedResultDTO({
+        searchResult: searchVO,
+        analyzedResult: analyzedVO
+      });
+    });
+
+    return combinedList;
+  } catch (err) {
+    logger.error('[search.service.mergeSearchAndAnalyzedResult] ERROR: ' + err.stack);
+    throw err;
+  }
+};
 
 
 /**
