@@ -125,13 +125,15 @@ exports.parseReelsData = async (reelsData) => {
   }
 };
 
-
 /**
  * @param {Object} filterWhere : where 문
  * @returns {String} whereClause : WHERE 조건절만 반환
  */
 exports.getSearchResult = async (filterWhere) => {
   try {
+    console.log("✅ searchRepo 타입:", typeof searchRepo); // object여야 정상
+    console.log("✅ searchRepo 내용:", searchRepo);
+    console.log("✅ searchRepo keys:", Object.keys(searchRepo));
     const rows = await searchRepo.getSearchResultRepo(filterWhere);
 
     const searchResultVOList = rows.map(row => new SearchResultVO({
@@ -145,7 +147,8 @@ exports.getSearchResult = async (filterWhere) => {
     return searchResultVOList;
   }
   catch(err) {
-
+    logger.error('[search.service.getSearchResult] ERROR: ' + err.stack);
+    throw err;
   }
 };
 
