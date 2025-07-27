@@ -10,7 +10,7 @@ class AnalyzedResultVO {
       likeCount,
       commentCount,
       caption,
-      audioInfo,
+      audio_info,
       topicTag,
       genreTag,
       formatTag,
@@ -29,7 +29,7 @@ class AnalyzedResultVO {
       this.likeCount = likeCount;
       this.commentCount = commentCount;
       this.caption = caption;
-      this.audioInfo = audioInfo;
+      this.audio_info = song_name + ', ' + artist_name;
       this.topicTag = topicTag;
       this.genreTag = genreTag;
       this.formatTag = formatTag;

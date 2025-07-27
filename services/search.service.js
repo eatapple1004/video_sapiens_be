@@ -96,10 +96,10 @@ exports.parseReelsData = async (reelsData) => {
 
     for (const [key, value] of Object.entries(parsedFilterData)) {
       if (key === 'views') {
-        conditions.push(`a.view_count >= ${value}`);
+        conditions.push(`p.video_view_count >= ${value}`);
       } 
       else if (key === 'likes') {
-        conditions.push(`a.like_count >= ${value}`);
+        conditions.push(`p.like_count >= ${value}`);
       } 
       else if (key === 'platform') {
         if (Array.isArray(value)) {
@@ -112,7 +112,7 @@ exports.parseReelsData = async (reelsData) => {
       else if (['topic', 'genre', 'format'].includes(key)) {
         if (Array.isArray(value) && value.length > 0) {
           const formattedArray = value.map(v => `'${v}'`).join(', ');
-          conditions.push(`a.${key} @> ARRAY[${formattedArray}]::text[]`);
+          conditions.push(`a.${key}_tag @> ARRAY[${formattedArray}]::text[]`);
         }
       }
     }
@@ -131,17 +131,14 @@ exports.parseReelsData = async (reelsData) => {
  */
 exports.getSearchResult = async (filterWhere) => {
   try {
-    console.log("✅ searchRepo 타입:", typeof searchRepo); // object여야 정상
-    console.log("✅ searchRepo 내용:", searchRepo);
-    console.log("✅ searchRepo keys:", Object.keys(searchRepo));
     const rows = await searchRepo.getSearchResultRepo(filterWhere);
 
     const searchResultVOList = rows.map(row => new SearchResultVO({
       thumbnailUrl: row.thumbnail_url,
       likeCount: row.like_count,
       videoViewCount: row.video_view_count,
-      profileImageUrl: row.profile_image_url,
-      creatorUsername: row.creator_username
+      profileImageUrl: row.profile_pic_url,
+      creatorUsername: row.username
     }));
 
     return searchResultVOList;
@@ -164,15 +161,16 @@ exports.getSearchResult = async (filterWhere) => {
     const analyzedResultVOList = rows.map(row => new AnalyzedResultVO({
       platformIconUrl: row.platform_icon_url,
       title: row.title,
-      profileImageUrl: row.profile_image_url,
-      creatorUsername: row.creator_username,
+      profileImageUrl: row.profile_pic_url,
+      creatorUsername: row.username,
       followers: row.followers,
       playCount: row.play_count,
       viewCount: row.view_count,
       likeCount: row.like_count,
       commentCount: row.comment_count,
       caption: row.caption,
-      audioInfo: row.audio_info,
+      song_name: row.song_name,
+      artist_name: row.artist_name,
       topicTag: row.topic_tag,
       genreTag: row.genre_tag,
       formatTag: row.format_tag,

@@ -1,4 +1,4 @@
-const db     = require("../config/database");
+const pool     = require("../config/database");
 const logger = require("../utils/logger");
 
 
@@ -15,7 +15,7 @@ exports.getIntegratedSearchReels = async (userInputWord) => {
             FROM post_search
 
         `;
-        const result = await db.query(query, [userInputWord]);
+        const result = await pool.query(query, [userInputWord]);
         
         return result.row; 
     }
@@ -34,7 +34,7 @@ exports.getIntegratedSearchReels = async (userInputWord) => {
  exports.getFilterSearchReels = async (filterQuery) => {
 
     try{
-        const result = await db.query(filterQuery);
+        const result = await pool.query(filterQuery);
         return result.rows;
     }
     catch(err) {
@@ -51,8 +51,8 @@ exports.getSearchResultRepo = async (filterWhere) => {
         p.thumbnail_url,
         p.like_count,
         p.video_view_count,
-        c.profile_image_url,
-        c.creator_username
+        c.profile_pic_url,
+        c.username
       FROM analyzed_video a
       JOIN post p ON a.video_idx = p.idx
       JOIN creator c ON p.creator_idx = c.idx
@@ -60,7 +60,7 @@ exports.getSearchResultRepo = async (filterWhere) => {
       ORDER BY p.like_count DESC
       LIMIT 48;
     `;
-  
+
     try {
       const result = await pool.query(query);
       return result.rows;
@@ -75,19 +75,20 @@ exports.getSearchResultRepo = async (filterWhere) => {
     const query = `
       SELECT 
         pf.platform_icon_url,
-        p.title,
-        c.profile_image_url,
-        c.creator_username,
-        c.follower_count AS followers,
-        p.play_count,
+        a.title,
+        c.profile_pic_url,
+        c.username,
+        c.followers,
+        p.video_view_count,
         p.video_view_count AS view_count,
         p.like_count,
         p.comment_count,
         p.caption,
-        p.audio_info,
-        p.topic AS topic_tag,
-        p.genre AS genre_tag,
-        p.format AS format_tag,
+        p.song_name,
+        p.artist_name,
+        a.topic_tag,
+        a.genre_tag,
+        a.format_tag,
         a.summary,
         a.visual_hook_summary,
         a.sound_hook_summary,
@@ -95,12 +96,12 @@ exports.getSearchResultRepo = async (filterWhere) => {
       FROM analyzed_video a
       JOIN post p ON a.video_idx = p.idx
       JOIN creator c ON p.creator_idx = c.idx
-      JOIN platform pf ON c.platform_id = pf.id
+      JOIN platform pf ON c.platform = pf.platform_name
       ${filterWhere}
       ORDER BY p.like_count DESC
       LIMIT 48;
     `;
-  
+
     try {
       const result = await pool.query(query);
       return result.rows;

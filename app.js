@@ -34,6 +34,7 @@ const search_router  = require('./routers/search.router');
 
 app.use('/api', user_router);
 app.use('/api', search_router);
+app.use('/static', express.static('/home/rubi/BE/images'));
 
 app.use("/upload", express.static(path.join(__dirname, "/uploads")));
 
