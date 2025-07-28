@@ -169,8 +169,7 @@ exports.getSearchResult = async (filterWhere) => {
       likeCount: row.like_count,
       commentCount: row.comment_count,
       caption: row.caption,
-      song_name: row.song_name,
-      artist_name: row.artist_name,
+      audio_info: row.song_name + ', ' + row.artist_name,
       topicTag: row.topic_tag,
       genreTag: row.genre_tag,
       formatTag: row.format_tag,
@@ -283,3 +282,18 @@ exports.makeFilterQuery = async (parsedFilterData) => {
         throw err;
     }
 }
+
+
+/**
+ * 플랫폼별 태그 목록 조회 서비스
+ * @returns {Object} { topicTags, genreTags, formatTags }
+ */
+ exports.getAllTagLists = async () => {
+  try {
+    const tagLists = await searchRepo.getAllTags();
+    return tagLists;
+  } catch (err) {
+    logger.error('[search.service.getAllTagLists] ERROR: ' + err.stack);
+    throw err;
+  }
+};

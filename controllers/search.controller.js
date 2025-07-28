@@ -62,3 +62,28 @@ exports.integreatedSearch = async (req, res) => {
         });
     }
 }
+
+
+
+/**
+ * 태그 종류 목록 조회 컨트롤러
+ * @route GET /tags
+ * @returns {JSON} topicTags, genreTags, formatTags
+ */
+ exports.getAllTags = async (req, res) => {
+    try {
+      const tagData = await searchService.getAllTagLists();
+      res.status(200).json({
+        success: true,
+        message: '태그 목록 조회 성공',
+        data: tagData
+      });
+    } catch (err) {
+      logger.error('[search.controller.getAllTags] ERROR: ' + err.stack);
+      res.status(500).json({
+        success: false,
+        message: '태그 목록 조회 실패',
+        error: err.message
+      });
+    }
+  };

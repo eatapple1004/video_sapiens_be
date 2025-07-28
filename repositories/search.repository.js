@@ -112,3 +112,51 @@ exports.getSearchResultRepo = async (filterWhere) => {
     }
   };
   
+
+
+exports.getAllTags = async () => {
+    const topicQuery = `
+        SELECT tag
+        FROM (
+            SELECT unnest(topic_tag) AS tag
+            FROM analyzed_video
+        ) AS unnested
+        GROUP BY tag
+        ORDER BY COUNT(*) DESC;
+    `;
+    const genreQuery = `
+        SELECT tag
+        FROM (
+            SELECT unnest(genre_tag) AS tag
+            FROM analyzed_video
+        ) AS unnested
+        GROUP BY tag
+        ORDER BY COUNT(*) DESC;
+    `;
+    const formatQuery = `
+        SELECT tag
+        FROM (
+            SELECT unnest(format_tag) AS tag
+            FROM analyzed_video
+        ) AS unnested
+        GROUP BY tag
+        ORDER BY COUNT(*) DESC;
+    `;
+
+    try {
+        const [topicResult, genreResult, formatResult] = await Promise.all([
+        pool.query(topicQuery),
+        pool.query(genreQuery),
+        pool.query(formatQuery)
+        ]);
+
+        return {
+        topicTags: topicResult.rows.map(row => row.tag),
+        genreTags: genreResult.rows.map(row => row.tag),
+        formatTags: formatResult.rows.map(row => row.tag)
+        };
+    } catch (err) {
+        logger.error('[search.repository.getAllTags] ERROR: ' + err.stack);
+        throw err;
+    }
+};
