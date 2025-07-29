@@ -8,14 +8,18 @@ const AnalyzedResultVO = require('../model/analyzedResultVO');
  * @returns {JSON Array} 
  */
 exports.integreatedSearch = async (req, res) => {
-    const { userInputWord } = req.body;
+    const { userInputWord } = req.query;
 
     try {
-        // 1. 릴스 검색
+        // 1. request 데이터 파싱
 
-        // 2. 데이터 파싱
+        // 2. search result DB 조회
 
-        // 3. send back response
+        // 3  analyzed result DB 조회
+
+        // 4. DTO 데이터 파싱
+
+        // 5. send back response
 
     }
     catch(err) {
@@ -48,10 +52,15 @@ exports.integreatedSearch = async (req, res) => {
         const responsePayload = await searchService.mergeSearchAndAnalyzedResult(
             searchResultVOList,
             analyzedResultVOList
-          );
+        );
 
-        // 6. send back response   
-        res.status(200).json(responsePayload);
+        
+
+        res.status(200).json({
+            success: true,
+            message: '필터 검색 조회 성공',
+            data: responsePayload
+        });
     }
     catch(err) {
         logger.error('[Tag Search, Controller ,tagSearch ERROR] :: ' + err.stack);
