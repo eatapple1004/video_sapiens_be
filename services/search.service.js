@@ -6,36 +6,63 @@ const MergedSearchAndAnalyzedResultDTO = require('../model/MergedSearchAndAnalyz
 
 
 /**
- * 통합 검색 - 데이터베이스 조회 서비스
- * @param {string} userInputWord : 사용자 입력 검색어
- * @returns {JSON} ReelsArray : DB조회 결과 - 48개
+ * GET 요청에서 integrated 파라미터 추출
+ * 예: /search/integrated?integratedSearch = blog 
+ * @param {Request} reqQuery - Express 요청 query
+ * @returns {string} - 통합 검색어
  */
-exports.integratedSearchReels = async (userInputWord) => {
+exports.parseIntegratedQuery = async (reqQuery) => {
+  const { integratedSearch } = reqQuery;
 
-    try{
-        // 데이터 베이스 조회
-        let reelsData;
+  if (!integratedSearch || typeof integratedSearch !== 'string') {
+    throw new Error('유효하지 않은 integrated 파라미터입니다.');
+  }
 
-        return reelsData
-    }
-    catch(err) {
-
-    }
+  // 필요 시 필터링 또는 전처리 가능
+  logger.info('통합검색어 :: ' + integratedSearch.trim());
+  return integratedSearch.trim();
 }
 
+
 /**
- * 통합 검색 - 데이터 정리 및 파싱
- * @param {string} userInputWord : 사용자 입력 검색어
- * @returns {JSON Array} 
+ * userInputIntegarted을 포함 하고 있는 분석된 영상 찾기
+ *                  < 탐색 범위 >
+ * 1. analyzed_video : table
+ * (column) topic_tag, genre_tag, format_tag, title, summary, visual_hook_summary, sound_hook_summary, text_hook_summary
+ *  
+ * 2. post : table
+ * (column) caption
+ * @param {String} userInputIntegarted - 유저 입력 단어
+ * @returns {string} - 통합 검색어
  */
-exports.parseReelsData = async (reelsData) => {
-    
-    try{
+exports.makeIntegratedWhereClause = async (userInputIntegarted) => {
+  try {
+    const keyword = userInputIntegarted.replace(/'/g, "''"); // SQL 인젝션 방지용 작은따옴표 escape
 
-    }
-    catch(err) {
+    const whereClause = `
+      WHERE
+        EXISTS (
+          SELECT 1 FROM unnest(a.topic_tag) AS tag WHERE tag ILIKE '%' || '${keyword}' || '%'
+        )
+        OR EXISTS (
+          SELECT 1 FROM unnest(a.genre_tag) AS tag WHERE tag ILIKE '%' || '${keyword}' || '%'
+        )
+        OR EXISTS (
+          SELECT 1 FROM unnest(a.format_tag) AS tag WHERE tag ILIKE '%' || '${keyword}' || '%'
+        )
+        OR a.title ILIKE '%' || '${keyword}' || '%'
+        OR a.summary ILIKE '%' || '${keyword}' || '%'
+        OR a.visual_hook_summary ILIKE '%' || '${keyword}' || '%'
+        OR a.sound_hook_summary ILIKE '%' || '${keyword}' || '%'
+        OR a.text_hook_summary ILIKE '%' || '${keyword}' || '%'
+        OR p.caption ILIKE '%' || '${keyword}' || '%'
+    `;
 
-    }
+    return whereClause;
+  } catch (err) {
+    logger.error('makeIntegratedWhereClause Error:', err);
+    throw new Error('통합 검색 WHERE 절 생성 실패');
+  }
 }
 
 

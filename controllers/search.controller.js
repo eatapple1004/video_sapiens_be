@@ -8,22 +8,36 @@ const AnalyzedResultVO = require('../model/analyzedResultVO');
  * @returns {JSON Array} 
  */
 exports.integreatedSearch = async (req, res) => {
-    const { userInputWord } = req.query;
-
+    logger.info('get integrated request');
     try {
         // 1. request 데이터 파싱
+        const userInputIntegarted = await searchService.parseIntegratedQuery(req.query);
+        
+        // 2. 통합 검색 where절 생성
+        const integratedWhereClause = await searchService.makeIntegratedWhereClause(userInputIntegarted);
 
-        // 2. search result DB 조회
+        // 3. search result DB 조회
+        const searchResultVOList = await searchService.getSearchResult(integratedWhereClause);
 
-        // 3  analyzed result DB 조회
+        // 4. analyzed result DB 조회
+        const analyzedResultVOList = await searchService.getAnalyzedResult(integratedWhereClause);
 
-        // 4. DTO 데이터 파싱
+        // 5. 검색 결과 & 분석 결과 데이터 파싱
+        const responsePayload = await searchService.mergeSearchAndAnalyzedResult(
+            searchResultVOList,
+            analyzedResultVOList
+        );
 
-        // 5. send back response
+        // 6. 통합 검색 결과 response 반환
+        res.status(200).json({
+            success: true,
+            message: '통합 검색 조회 성공',
+            data: responsePayload
+        });
 
     }
     catch(err) {
-
+        logger.error('[Integrated Search, Controller ,integreatedSearch ERROR] :: ' + err.stack);
     }
 }
 
@@ -54,8 +68,7 @@ exports.integreatedSearch = async (req, res) => {
             analyzedResultVOList
         );
 
-        
-
+        // 6. 필터 검색 결과 response 반환
         res.status(200).json({
             success: true,
             message: '필터 검색 조회 성공',
