@@ -161,11 +161,12 @@ exports.getSearchResult = async (filterWhere) => {
     const rows = await searchRepo.getSearchResultRepo(filterWhere);
 
     const searchResultVOList = rows.map(row => new SearchResultVO({
-      thumbnail_url: row.thumbnail_url,
-      like_count: row.like_count,
-      video_view_count: row.video_view_count,
-      profile_image_url: row.profile_pic_url,
-      creator_username: row.username
+      platform_shortcode: row.platform + '_' + row.shortcode,
+      thumbnail_url:      row.thumbnail_url,
+      like_count:         row.like_count,
+      video_view_count:   row.video_view_count,
+      profile_image_url:  row.profile_pic_url,
+      creator_username:   row.username
     }));
 
     return searchResultVOList;
@@ -186,24 +187,29 @@ exports.getSearchResult = async (filterWhere) => {
     const rows = await searchRepo.getAnalyzedResultRepo(filterWhere);
 
     const analyzedResultVOList = rows.map(row => new AnalyzedResultVO({
-      platform_icon_url: row.platform_icon_url,
-      title: row.title,
-      profile_image_url: row.profile_pic_url,
-      creator_username: row.username,
-      followers: row.followers,
-      play_count: row.play_count,
-      view_count: row.view_count,
-      like_count: row.like_count,
-      comment_count: row.comment_count,
-      caption: row.caption,
+      platform_shortcode: row.platform + '_' + row.shortcode,
+      platform_icon_url:  row.platform_icon_url,
+      title:              row.title,
+      profile_image_url:  row.profile_pic_url,
+      creator_username:   row.username,
+      followers:          row.followers,
+      
+      play_count:     row.play_count,
+      view_count:     row.view_count,
+      like_count:     row.like_count,
+      comment_count:  row.comment_count,
+      
+      caption:    row.caption,
       audio_info: row.song_name + ', ' + row.artist_name,
-      topic_tag: row.topic_tag,
-      genre_tag: row.genre_tag,
+      
+      topic_tag:  row.topic_tag,
+      genre_tag:  row.genre_tag,
       format_tag: row.format_tag,
-      summary: row.summary,
-      visual_hook_summary: row.visual_hook_summary,
-      sound_hook_summary: row.sound_hook_summary,
-      text_hook_summary: row.text_hook_summary
+      
+      summary:              row.summary,
+      visual_hook_summary:  row.visual_hook_summary,
+      sound_hook_summary:   row.sound_hook_summary,
+      text_hook_summary:    row.text_hook_summary
     }));
 
     return analyzedResultVOList;

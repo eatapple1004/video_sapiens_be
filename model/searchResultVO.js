@@ -1,16 +1,18 @@
 class SearchResultVO {
     constructor({
+      platform_shortcode,
       thumbnail_url,
       like_count,
       video_view_count,
       profile_image_url,
       creator_username
     }) {
-      this.thumbnail_url = thumbnail_url;
-      this.like_count = like_count;
-      this.video_view_count = video_view_count;
-      this.profile_image_url = profile_image_url;
-      this.creator_username = creator_username;
+      this.platform_shortcode = platform_shortcode
+      this.thumbnail_url      = thumbnail_url;
+      this.like_count         = like_count;
+      this.video_view_count   = video_view_count;
+      this.profile_image_url  = profile_image_url;
+      this.creator_username   = creator_username;
     }
   }
   

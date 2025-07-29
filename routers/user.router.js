@@ -11,4 +11,6 @@ router.post("/user/login",    userController.loginUser);
 
 router.get("/username", authenticate, userController.getTokenUsername);
 
+router.post("/marking", authenticate, userController.markVideo);
+
 module.exports = router;

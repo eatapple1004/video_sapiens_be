@@ -1,5 +1,6 @@
 class AnalyzedResultVO {
     constructor({
+      platform_shortcode,
       platform_icon_url,
       title,
       profile_image_url,
@@ -19,6 +20,7 @@ class AnalyzedResultVO {
       sound_hook_summary,
       text_hook_summary
     }) {
+      this.platform_shortcode   = platform_shortcode
       this.platform_icon_url    = platform_icon_url;
       this.title                = title;
       this.profile_image_url    = profile_image_url;

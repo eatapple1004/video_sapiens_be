@@ -71,3 +71,12 @@ exports.getTokenUsername = async (req, res) => {
   logger.info("[1_2. username 조회 response to FE]" + req.userEmail);
 
 }
+
+exports.markVideo = async (req, res) => {
+  try{
+
+  }
+  catch(err) {
+
+  }
+}

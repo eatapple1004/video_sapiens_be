@@ -47,7 +47,9 @@ exports.getIntegratedSearchReels = async (userInputWord) => {
 
 exports.getSearchResultRepo = async (filterWhere) => {
     const query = `
-      SELECT 
+      SELECT
+        a.platform,
+        p.shortcode,
         p.thumbnail_url,
         p.like_count,
         p.video_view_count,
@@ -73,7 +75,9 @@ exports.getSearchResultRepo = async (filterWhere) => {
   
   exports.getAnalyzedResultRepo = async (filterWhere) => {
     const query = `
-      SELECT 
+      SELECT
+        a.platform,
+        p.shortcode,
         pf.platform_icon_url,
         a.title,
         c.profile_pic_url,
