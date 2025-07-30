@@ -74,9 +74,24 @@ exports.getTokenUsername = async (req, res) => {
 
 exports.markVideo = async (req, res) => {
   try{
+    // 1. 데이터 파싱
+    const {userEmail, platform, video_code} = await userService.parseMarkRequest(req);
 
+    // 2. DB 업데이트
+    const result = await markingDatabaseUpdate(userEmail, platform, video_code);
+
+    // 3. 성공 response
+    res.status(200).json({
+      success: result,
+      message: '마킹 성공'
+  });
   }
   catch(err) {
-
+    logger.error('[Tag Search, Controller ,tagSearch ERROR] :: ' + err.stack);
+    res.status(500).json({
+    success: false,
+    message: 'Internal Server Error',
+    error: err.message
+    });
   }
 }

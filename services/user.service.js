@@ -78,3 +78,71 @@ exports.loginUser = async (email, plainPassword) => {
     const token = jwtUtil.generateToken({ username: email });
     return token;
 };
+
+/**
+ * 유저 마킹 기능
+ * @param {String} userEmail : 유저를 식별하기 위한 이메일
+ * @param {String} platform_shortcode : 파싱이 필요한 데이터 analyzed_video idx를 도출 해내야 한다
+ */
+exports.parseMarkRequest = async (req) => {
+  try {
+    const userEmail = req.userEmail;
+    const platform_shortcode = req.platform_shortcode;
+
+    if (!platform_shortcode.includes('_')) {
+      throw new Error('입력값은 반드시 "platform_shortcode" 형식이어야 합니다.');
+    }
+
+    const [platform, ...codeParts] = platform_shortcode.split('_');
+    const video_code = codeParts.join('_');
+
+    return {userEmail, platform, video_code};
+  }
+  catch(err) {
+    logger.error("[ User Mark, parseMarkRequest ERROR ] :: " + err.stack);
+    throw err;
+  }
+}
+
+/**
+ * 마킹 기능
+ * 1. 유저와 비디오 특정
+ * 2. 유저 테이블에 마킹 리스트에 analyzed_video_idx 저장
+ * @param {String} userEmail : 유저를 식별하기 위한 이메일
+ * @param {String} platform : 영상 식별 키 일부
+ * @param {String} video_code : 영상 식별 코드
+ */
+exports.markingDatabaseUpdate = async (userEmail, platform, video_code) => {
+  try{
+    const analyzedVideoIdx = await searchAnalyzedVideoIdxService(platform, video_code);
+    const markingResult = await markAnalyzedVideoIdxService(userEmail, analyzedVideoIdx);
+    return markingResult;
+  }
+  catch(err) {
+
+  }
+}
+
+async function searchAnalyzedVideoIdxService(platform, video_code) {
+  try {
+    const analyzedVideoIdx = await userRepo.searchAnalyzedVideoIdxRepo(platform, video_code);
+    return analyzedVideoIdx;
+  }
+  catch(err) {
+    logger.err('[마킹 시스템 analyzed_video idx 찾는 도중 에러 발생] :: ' + err.stack); 
+    throw err;
+  }
+}
+
+async function markAnalyzedVideoIdxService(userEmail, analyzedVideoIdx) {
+  try {
+    const markingResult = await userRepo.markAnalyzedVideoIdxRepo(userEmail, analyzedVideoIdx);
+    return markingResult;
+  }
+  catch(err) {
+    logger.err('[마킹 시스템 analyzed_video idx 입력중 에러 발생] :: ' + err.stack); 
+    throw err;
+  }
+}
+
+

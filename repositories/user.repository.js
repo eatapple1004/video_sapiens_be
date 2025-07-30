@@ -77,3 +77,36 @@ exports.getUserIdxByEmail = async (email) => {
   
     return result.rows[0].idx;
 };
+
+
+exports.searchAnalyzedVideoIdxRepo = async (platform, video_code) => {
+    const query = `
+        select idx
+        from analyzed_video
+        where platform = ${platform} AND video_code = ${video_code}
+    `;
+    try{
+        const result = await db.query(query);
+        return result.rows[0].idx;
+    }
+    catch(err) {
+        logger.error('[user.repository.searchAnalyzedVideoIdxRepo] ERROR: ' + err.stack);
+        throw err;
+    }
+}
+
+exports.markAnalyzedVideoIdxRepo = async (userEmail, analyzedVideoIdx) => {
+    const query = `
+        update users
+        set mark_list || ${analyzedVideoIdx}
+        where email = ${userEmail}
+    `;
+    try{
+        const result = await db.query(query);
+        return true;
+    } 
+    catch(err) {
+        logger.error('[user.repository.markAnalyzedVideoIdxRepo] ERROR: ' + err.stack);
+        return false;
+    }
+}
