@@ -1,0 +1,20 @@
+const logger = require("../utils/logger");
+const searchRepo = require("../repositories/search.repository");
+const libraryRepo = require("../repositories/library.repository");
+const SearchResultVO = require('../model/searchResultVO');
+const AnalyzedResultVO = require('../model/analyzedResultVO');
+const MergedSearchAndAnalyzedResultDTO = require('../model/MergedSearchAndAnalyzedResultDTO');
+
+/**
+ * 유저 이메일를 이용하여 유저를 식별후
+ * 특정된 유저의 marked한 analyzed_video의 idx 리스트들을 반환 한다
+ */
+exports.getUserMarkListService = async (userEmail) => {
+    try{
+        const markList = await libraryRepo.getUserMarkListRepo(userEmail);
+    }
+    catch(err) {
+
+    }
+}
+  
