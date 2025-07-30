@@ -12,9 +12,11 @@ const MergedSearchAndAnalyzedResultDTO = require('../model/MergedSearchAndAnalyz
 exports.getUserMarkListService = async (userEmail) => {
     try{
         const markList = await libraryRepo.getUserMarkListRepo(userEmail);
+        return markList;
     }
     catch(err) {
-
+        logger.error('getUserMarkListService Error:', err.stack);
+        throw new Error('통합 검색 WHERE 절 생성 실패');
     }
 }
   

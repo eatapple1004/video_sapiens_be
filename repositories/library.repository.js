@@ -6,13 +6,12 @@ exports.getUserMarkListRepo = async (userEmail) => {
     const query = `
         select mark_list
         from users
-        where email = ${userEmail}
+        where email = $1
     `;
 
     try {
-        const markLikst = await db.query(query);
-        return markLikst;
-        
+        const result = await pool.query(query, [userEmail]);
+        return result.rows[0].mark_list;
     } catch (error) {
         logger?.error(`유저 마크 비디오 조회 오류: ${error.stack}`);
         throw error;

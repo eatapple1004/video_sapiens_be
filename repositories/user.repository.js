@@ -83,10 +83,11 @@ exports.searchAnalyzedVideoIdxRepo = async (platform, video_code) => {
     const query = `
         select idx
         from analyzed_video
-        where platform = ${platform} AND video_code = ${video_code}
+        where platform = $1 AND video_code = $2
     `;
+    const values = [platform, video_code];
     try{
-        const result = await db.query(query);
+        const result = await db.query(query, values);
         return result.rows[0].idx;
     }
     catch(err) {
@@ -98,11 +99,13 @@ exports.searchAnalyzedVideoIdxRepo = async (platform, video_code) => {
 exports.markAnalyzedVideoIdxRepo = async (userEmail, analyzedVideoIdx) => {
     const query = `
         update users
-        set mark_list || ${analyzedVideoIdx}
-        where email = ${userEmail}
+        set mark_list || $1
+        where email = $2
     `;
+    const values = [analyzedVideoIdx, userEmail];
     try{
-        const result = await db.query(query);
+        
+        const result = await db.query(query, values);
         return true;
     } 
     catch(err) {
