@@ -80,7 +80,7 @@ exports.loginUser = async (email, plainPassword) => {
 };
 
 /**
- * 유저 마킹 기능
+ * 유저 마킹 기능 파싱
  * @param {String} userEmail : 유저를 식별하기 위한 이메일
  * @param {String} platform_shortcode : 파싱이 필요한 데이터 analyzed_video idx를 도출 해내야 한다
  */
