@@ -31,9 +31,11 @@ app.use(cors({
 
 const user_router    = require('./routers/user.router');
 const search_router  = require('./routers/search.router');
+const library_router  = require('./routers/library.router');
 
 app.use('/api', user_router);
 app.use('/api', search_router);
+app.use('/api', library_router);
 app.use('/static', express.static('/home/rubi/BE/images'));
 
 app.use("/upload", express.static(path.join(__dirname, "/uploads")));
