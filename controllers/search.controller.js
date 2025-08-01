@@ -108,4 +108,47 @@ exports.integreatedSearch = async (req, res) => {
         error: err.message
       });
     }
-  };
+};
+
+/**
+ * integrated와 tag Searching 둘다 가능한 기능
+ * @route GET /search
+ * @param {Query} req.query : 사용자 지정 & 입력 
+ * @returns {Object} reelsData  : 조건에 부합 하는 릴스 리스트
+ */
+exports.searchReels = async (req, res) => {
+    try {
+        // 1. req.query 데이터 파싱
+        const parsedData = await searchService.parseUserInputQuery(req.query);
+        
+        // 2. where 절 생성
+        const whereClause = await searchService.makeUserInputWhereClause(parsedData);
+        
+        // 3. search result 조회
+        const searchResultVOList = await searchService.getSearchResult(whereClause);
+
+        // 4. analyzed result 조회
+        const analyzedResultVOList = await searchService.getAnalyzedResult(whereClause);
+
+        // 5. reelsData 생성
+        const responsePayload = await searchService.mergeSearchAndAnalyzedResult(
+            searchResultVOList,
+            analyzedResultVOList
+        );
+
+        // 6. response 반환
+        res.status(200).json({
+            success: true,
+            message: '검색 조회 성공',
+            data: responsePayload
+        });
+    }
+    catch(err) {
+        logger.error('[search.controller.searchReels] ERROR: ' + err.stack);
+        res.status(500).json({
+            success: false,
+            message: '검색 목록 조회 실패',
+            error: err.message
+        });
+    }
+}

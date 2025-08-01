@@ -255,54 +255,6 @@ exports.getSearchResult = async (filterWhere) => {
  * @param {Object} parsedFilterData : 사용자 입력 검색어
  * @returns {String} filterQuery 전체 SQL 문자열
  */
-exports.makeFilterQuery = async (parsedFilterData) => {
-  try {
-    const conditions = [];
-
-    for (const [key, value] of Object.entries(parsedFilterData)) {
-        if (key === 'views') { conditions.push(`view_count >= ${value}`); } 
-        else if (key === 'likes') { conditions.push(`like_count >= ${value}`); } 
-        else if (key === 'platform') {
-            if (Array.isArray(value)) {
-                const platformConditions = value.map(v => `platform = '${v}'`);
-                conditions.push(`(${platformConditions.join(' OR ')})`);
-            } 
-            else {
-                conditions.push(`platform = '${value}'`);
-            }
-        } 
-        else if (['topic', 'genre', 'format'].includes(key)) {
-            if (Array.isArray(value) && value.length > 0) {
-                const formattedArray = value.map(v => `'${v}'`).join(', ');
-                conditions.push(`${key} @> ARRAY[${formattedArray}]::text[]`);
-            }
-        }
-      }
-
-    const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
-
-    const filterQuery = `
-        SELECT *
-        FROM post_search
-        ${whereClause}
-        ORDER BY like_count DESC
-        LIMIT 48;
-    `.trim();
-
-    return filterQuery;
-
-  } catch (err) {
-    logger.error("[ Tag Search, makeFilterQuery ERROR ] :: " + err.stack);
-    throw err;
-  }
-};
-
-
-/**
- * 테그 검색 필터 전용 쿼리문 작성
- * @param {Object} parsedFilterData : 사용자 입력 검색어
- * @returns {String} filterQuery 전체 SQL 문자열
- */
  exports.getReelsDataByTagFilter = async (filterQuery) => {
     
     try{
@@ -327,6 +279,153 @@ exports.makeFilterQuery = async (parsedFilterData) => {
     return tagLists;
   } catch (err) {
     logger.error('[search.service.getAllTagLists] ERROR: ' + err.stack);
+    throw err;
+  }
+};
+
+/**
+ * 테그 검색 데이터 정리 및 파싱
+ * @param {Object} userInputFilter : 사용자 입력 검색어
+ * @returns {Object} cleanFilter
+ */
+exports.parseUserInputQuery = async (userInputFilter) => {
+  try {
+    const parsedFilterData = {};
+
+    for (const [key, value] of Object.entries(userInputFilter)) {
+      if (value == null) continue;
+
+      if (typeof value === 'string' && value.trim() === '') continue;
+
+      // 배열 필드 처리
+      const arrayFields = ['platform', 'topic', 'genre', 'format'];
+
+      if (arrayFields.includes(key)) {
+        const parsedArray = value
+          .split(',')
+          .map(v => v.trim())
+          .filter(v => v !== '');
+        if (parsedArray.length > 0) {
+          parsedFilterData[key] = parsedArray;
+        }
+
+      } else if (['views', 'likes'].includes(key)) {
+        // "1000,5000" → { min: 1000, max: 5000 }
+        const [minStr, maxStr] = value.split(',').map(v => v.trim());
+        const min = parseInt(minStr);
+        const max = parseInt(maxStr);
+
+        const range = {};
+        if (!isNaN(min)) range.min = min;
+        if (!isNaN(max)) range.max = max;
+
+        if (Object.keys(range).length > 0) {
+          parsedFilterData[key] = range;
+        }
+
+      } else if (key === 'query') {
+        // 일반 검색어
+        parsedFilterData.query = value.trim();
+
+      } else {
+        // 기타 문자열 필터
+        parsedFilterData[key] = value.trim();
+      }
+    }
+
+    return parsedFilterData;
+  } catch (err) {
+    logger.error('[ Search, parseUserInputQuery ERROR ] :: ' + err.stack);
+    throw err;
+  }
+};
+
+
+/**
+ * SQL WHERE 절 문자열 생성기
+ * @param {Object} parsedData - parseUserInputFilter 결과 객체
+ * @returns {String} WHERE 절 문자열 (예: "WHERE topic_tag @> ARRAY[...] AND ...")
+ */
+ exports.makeUserInputWhereClause = async (parsedFilter) => {
+  try {
+    const conditions = [];
+
+    // 🔐 문자열 이스케이프 처리
+    const escapeLiteral = (str) => {
+      if (typeof str !== 'string') return null;
+      return `'${str.replace(/'/g, "''")}'`;
+    };
+
+    // 🔐 배열 이스케이프 처리
+    const escapeArray = (arr) => {
+      if (!Array.isArray(arr)) return null;
+      return arr
+        .map(v => escapeLiteral(String(v)))
+        .filter(v => v !== null)
+        .join(', ');
+    };
+
+    // ✅ 1. 배열 필드 유효성 검사 및 where절 생성
+    const arrayFields = ['platform', 'topic', 'genre', 'format'];
+    for (const field of arrayFields) {
+      const value = parsedFilter[field];
+      if (field === 'platform') {
+        if (Array.isArray(value)) {
+            const platformConditions = value.map(v => `a.platform = '${v}'`);
+            conditions.push(`(${platformConditions.join(' OR ')})`);
+        } 
+        else {
+            conditions.push(`a.platform = '${value}'`);
+        }
+      }
+      else if (Array.isArray(value) && value.length > 0 && value.every(v => typeof v === 'string')) {
+        const arrayString = escapeArray(value);
+        conditions.push(`a.${field}_tag @> ARRAY[${arrayString}]::text[]`);
+      }
+    }
+
+    // ✅ 2. views, likes 유효성 검사 및 범위 처리
+    const rangeFields = ['views', 'likes'];
+    for (const field of rangeFields) {
+
+      const range = parsedFilter[field];
+      if (range && typeof range === 'object') {
+        const min = parseInt(range.min);
+        const max = parseInt(range.max);
+
+        if (field === 'views') {
+          if (!isNaN(min)) conditions.push(`p.video_view_count >= ${min}`);
+          if (!isNaN(max)) conditions.push(`p.video_view_count <= ${max}`);
+        }
+        else if (field === 'likes') {
+          if (!isNaN(min)) conditions.push(`p.like_count >= ${min}`);
+          if (!isNaN(max)) conditions.push(`p.like_count <= ${max}`);
+        }
+      }
+    }
+
+    // ✅ 3. query 통합 검색 (a: analyzed_video, p: post 가정)
+    if (typeof parsedFilter.query === 'string' && parsedFilter.query.trim() !== '') {
+      const keyword = parsedFilter.query.replace(/'/g, "''").trim();
+      conditions.push(`(
+        EXISTS (SELECT 1 FROM unnest(a.topic_tag) AS tag WHERE tag ILIKE '%${keyword}%') OR
+        EXISTS (SELECT 1 FROM unnest(a.genre_tag) AS tag WHERE tag ILIKE '%${keyword}%') OR
+        EXISTS (SELECT 1 FROM unnest(a.format_tag) AS tag WHERE tag ILIKE '%${keyword}%') OR
+        a.title ILIKE '%${keyword}%' OR
+        a.summary ILIKE '%${keyword}%' OR
+        a.visual_hook_summary ILIKE '%${keyword}%' OR
+        a.sound_hook_summary ILIKE '%${keyword}%' OR
+        a.text_hook_summary ILIKE '%${keyword}%' OR
+        p.caption ILIKE '%${keyword}%'
+      )`);
+    }
+
+    // ✅ 4. 최종 WHERE 절 조립
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    return whereClause;
+
+  } catch (err) {
+    logger.error('[makeFilterWhereClause ERROR] :: ' + err.stack);
     throw err;
   }
 };
