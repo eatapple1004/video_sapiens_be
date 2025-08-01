@@ -45,6 +45,7 @@ exports.loginUser = async (req, res) => {
       const token = await userService.loginUser(email, password);
 
       logger.info("[1_4. user login - send token to FE]    :: " + email);
+      console.log(token)
       // JWT 토큰을 쿠키로 전송
       res.cookie("authToken", token, {
         httpOnly: true,     //  JavaScript 접근 불가 (보안 강화)
@@ -78,7 +79,7 @@ exports.markVideo = async (req, res) => {
     const {userEmail, platform, video_code} = await userService.parseMarkRequest(req);
 
     // 2. DB 업데이트
-    const result = await markingDatabaseUpdate(userEmail, platform, video_code);
+    const result = await userService.markingDatabaseUpdate(userEmail, platform, video_code);
 
     // 3. 성공 response
     res.status(200).json({
@@ -87,7 +88,7 @@ exports.markVideo = async (req, res) => {
   });
   }
   catch(err) {
-    logger.error('[Tag Search, Controller ,tagSearch ERROR] :: ' + err.stack);
+    logger.error('[marking, Controller ,markVideo ERROR] :: ' + err.stack);
     res.status(500).json({
     success: false,
     message: 'Internal Server Error',

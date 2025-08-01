@@ -87,7 +87,7 @@ exports.loginUser = async (email, plainPassword) => {
 exports.parseMarkRequest = async (req) => {
   try {
     const userEmail = req.userEmail;
-    const platform_shortcode = req.platform_shortcode;
+    const platform_shortcode = req.body.platform_shortcode;
 
     if (!platform_shortcode.includes('_')) {
       throw new Error('입력값은 반드시 "platform_shortcode" 형식이어야 합니다.');

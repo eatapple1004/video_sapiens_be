@@ -99,10 +99,10 @@ exports.searchAnalyzedVideoIdxRepo = async (platform, video_code) => {
 exports.markAnalyzedVideoIdxRepo = async (userEmail, analyzedVideoIdx) => {
     const query = `
         update users
-        set mark_list || $1
+        set mark_list = mark_list || $1
         where email = $2
     `;
-    const values = [analyzedVideoIdx, userEmail];
+    const values = [[parseInt(analyzedVideoIdx)], userEmail];
     try{
         
         const result = await db.query(query, values);
