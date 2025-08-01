@@ -10,7 +10,7 @@ exports.verifyToken = (token) => {
     try {
         return jwt.verify(token, SECRET_KEY);
     } catch (error) {
-        console.error("JWT 검증 실패:", error.message);
+        logger.error("JWT 검증 실패:", error.message);
         throw new Error("유효하지 않은 토큰");
     }
 };

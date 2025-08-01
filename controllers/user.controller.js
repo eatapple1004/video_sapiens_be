@@ -45,7 +45,6 @@ exports.loginUser = async (req, res) => {
       const token = await userService.loginUser(email, password);
 
       logger.info("[1_4. user login - send token to FE]    :: " + email);
-      console.log(token)
       // JWT 토큰을 쿠키로 전송
       res.cookie("authToken", token, {
         httpOnly: true,     //  JavaScript 접근 불가 (보안 강화)

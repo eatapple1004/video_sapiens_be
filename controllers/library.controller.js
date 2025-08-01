@@ -16,12 +16,10 @@ exports.retrieveCheckedMarkedVideos = async (req, res) => {
 
         // 2. 유저 mark_list 번호 가져 오기
         const markList = await libraryService.getUserMarkListService(userEmail);
-        console.log(markList);
+        
         // 3. 받은 markList들을 기준으로 where절 생성
         const whereClause = await libraryService.makeMarkedWhereClause(markList);
        
-        console.log(whereClause)
-
         // 4. search result list
         const searchResultVOList = await searchService.getSearchResult(whereClause);
     

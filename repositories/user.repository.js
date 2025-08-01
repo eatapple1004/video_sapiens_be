@@ -35,9 +35,9 @@ exports.registerUser = async (email, password) => {
         const values = [email, password];
 
         const result = await db.query(query, values);
-        console.log(`✅ 회원가입 성공 (User ID: ${result.rows[0].id})`);
+        logger.info(`✅ 회원가입 성공 (User ID: ${result.rows[0].id})`);
     } catch (error) {
-        console.error("❌ 회원가입 오류:", error);
+        logger.error("❌ 회원가입 오류:", error);
     } finally {
         
     }
@@ -60,7 +60,7 @@ exports.getPasswordHashByEmail = async (email) => {
         //console.log(`📥 비밀번호 해시 조회 성공: ${email}`);
         return result.rows[0].password_hash;
     } catch (error) {
-        console.error(`❌ 비밀번호 해시 조회 오류 (${email}):`, error);
+        logger.error(`❌ 비밀번호 해시 조회 오류 (${email}):`, error);
         throw error;
     }
 }

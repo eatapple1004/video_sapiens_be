@@ -31,8 +31,6 @@ exports.makeMarkedWhereClause = async (userInputIntegarted) => {
             return 'FALSE'; // 조건 없음 → WHERE FALSE
         }
         
-        console.log('idx List ::' + safeIdxList);
-
         const whereClause = ` WHERE a.idx = ANY(ARRAY[${safeIdxList.join(',')}]::int[])`;
         return whereClause;
     } catch (err) {
