@@ -6,10 +6,15 @@ const MergedSearchAndAnalyzedResultDTO = require('../model/MergedSearchAndAnalyz
 
 
 /**
- * GET 요청에서 integrated 파라미터 추출
- * 예: /search/integrated?integratedSearch = blog 
- * @param {Request} reqQuery - Express 요청 query
- * @returns {string} - 통합 검색어
+ * GET 요청에서 integrated 파라미터를 추출하는 함수
+ * 
+ * 예: /search/integrated?integratedSearch=blog
+ * 
+ * @param {import('express').Request['query']} reqQuery - Express 요청의 query 객체
+ * 
+ * @throws {Error} integratedSearch가 없거나 문자열이 아닐 경우 예외 발생
+ * 
+ * @returns {Promise<string>} 통합 검색어 (trim 처리된 문자열)
  */
 exports.parseIntegratedQuery = async (reqQuery) => {
   const { integratedSearch } = reqQuery;
@@ -25,15 +30,17 @@ exports.parseIntegratedQuery = async (reqQuery) => {
 
 
 /**
- * userInputIntegarted을 포함 하고 있는 분석된 영상 찾기
- *                  < 탐색 범위 >
- * 1. analyzed_video : table
- * (column) topic_tag, genre_tag, format_tag, title, summary, visual_hook_summary, sound_hook_summary, text_hook_summary
- *  
- * 2. post : table
- * (column) caption
- * @param {String} userInputIntegarted - 유저 입력 단어
- * @returns {string} - 통합 검색어
+ * userInputIntegarted을 포함하는 분석된 영상 조건의 WHERE 절 생성 함수
+ * 
+ * <탐색 범위>
+ * 1. analyzed_video 테이블 (topic_tag, genre_tag, format_tag, title, summary, visual_hook_summary, sound_hook_summary, text_hook_summary 컬럼)
+ * 2. post 테이블 (caption 컬럼)
+ * 
+ * @param {string} userInputIntegarted - 유저 입력 단어
+ * 
+ * @throws {Error} WHERE 절 생성 중 에러 발생 시 예외 던짐
+ * 
+ * @returns {Promise<string>} SQL WHERE 절 문자열 반환
  */
 exports.makeIntegratedWhereClause = async (userInputIntegarted) => {
   try {
@@ -67,9 +74,13 @@ exports.makeIntegratedWhereClause = async (userInputIntegarted) => {
 
 
 /**
- * 테그 검색 데이터 정리 및 파싱
- * @param {Object} userInputFilter : 사용자 입력 검색어
- * @returns {Object} cleanFilter
+ * 사용자 입력 검색어를 정리 및 파싱하는 함수
+ * 
+ * @param {Object} userInputFilter - 사용자 입력 검색어 객체
+ * 
+ * @throws {Error} 파싱 중 오류 발생 시 예외 던짐
+ * 
+ * @returns {Promise<Object>} 파싱 및 정리된 필터 객체 반환
  */
  exports.parseUserInputFilter = async (userInputFilter) => {
     
@@ -86,7 +97,6 @@ exports.makeIntegratedWhereClause = async (userInputIntegarted) => {
           const arrayFields = ['platform', 'topic', 'genre', 'format'];
     
           if (arrayFields.includes(key)) {
-            // "ai,tech" → ['ai', 'tech']
             const parsedArray = value.split(',').map(v => v.trim()).filter(v => v !== '');
             if (parsedArray.length > 0) {
               parsedFilterData[key] = parsedArray;
@@ -113,9 +123,13 @@ exports.makeIntegratedWhereClause = async (userInputIntegarted) => {
 
 
 /**
- * 테그 검색 필터 전용 WHERE 조건절 생성기 (a. 접두어 포함)
- * @param {Object} parsedFilterData : 사용자 입력 검색어
- * @returns {String} whereClause : WHERE 조건절만 반환
+ * 태그 검색 필터 전용 WHERE 조건절 생성 함수 (a. 접두어 포함)
+ * 
+ * @param {Object} parsedFilterData - 사용자 입력 검색어 객체
+ * 
+ * @throws {Error} WHERE 절 생성 중 오류 발생 시 예외 던짐
+ * 
+ * @returns {Promise<string>} WHERE 조건절 문자열 반환 (조건이 없으면 빈 문자열)
  */
  exports.makeFilterWhereClause = async (parsedFilterData) => {
   try {

@@ -11,7 +11,7 @@ router.post("/user/register", userController.registerUser);
 // login
 router.post("/user/login",    userController.loginUser);
 
-// 얜 뭐였지?
+// userEmail 반환
 router.get("/username",   authenticate, userController.getTokenUsername);
 
 // 유저 마킹 기능
