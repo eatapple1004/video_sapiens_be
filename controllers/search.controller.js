@@ -2,6 +2,7 @@ const logger = require('../utils/logger');
 const searchService = require("../services/search.service");
 const SearchResultVO = require('../model/searchResultVO');
 const AnalyzedResultVO = require('../model/analyzedResultVO');
+
 /**
  * 통합 검색 컨트롤러
  * @param {string} userInputWord : 사용자 입력 검색어
