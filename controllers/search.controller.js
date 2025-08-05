@@ -1,12 +1,17 @@
 const logger = require('../utils/logger');
-const searchService = require("../services/search.service");
-const SearchResultVO = require('../model/searchResultVO');
+const searchService    = require("../services/search.service");
+const SearchResultVO   = require('../model/searchResultVO');
 const AnalyzedResultVO = require('../model/analyzedResultVO');
 
 /**
- * 통합 검색 컨트롤러
- * @param {string} userInputWord : 사용자 입력 검색어
- * @returns {JSON Array} 
+ * 통합 검색 컨트롤러 함수
+ * 
+ * @route GET /search/integrated
+ * 
+ * @param {import('express').Request} req  - HTTP 요청 객체, req.query에 사용자 입력 검색어 포함
+ * @param {import('express').Response} res - HTTP 응답 객체
+ * 
+ * @returns {Promise<void>} 통합 검색 결과를 JSON 형식으로 응답, 에러 시 로그 기록
  */
 exports.integreatedSearch = async (req, res) => {
     logger.info('get integrated request');
@@ -38,15 +43,25 @@ exports.integreatedSearch = async (req, res) => {
 
     }
     catch(err) {
-        logger.error('[Integrated Search, Controller ,integreatedSearch ERROR] :: ' + err.stack);
+        logger.error('[ Search Controller ,integreatedSearch ERROR] :: ' + err.stack);
+        res.status(500).json({
+            success: false,
+            message: 'Internal Server Error',
+            error: err.message
+        });
     }
 }
 
 
 /**
- * 테그 검색 컨트롤러
- * @param {Query} req.query : 사용자 입력 검색어
- * @returns {Object} reelsData  : 조건에 부합 하는 릴스 리스트
+ * 태그 검색 컨트롤러 함수
+ * 
+ * @route GET /search/tag
+ * 
+ * @param {import('express').Request} req  - HTTP 요청 객체, req.query에 사용자 입력 검색어 포함
+ * @param {import('express').Response} res - HTTP 응답 객체
+ * 
+ * @returns {Promise<void>} 필터링된 릴스 리스트를 JSON 형식으로 응답, 에러 시 500 상태와 에러 메시지 반환
  */
  exports.tagSearch = async (req, res) => {
     
@@ -77,11 +92,11 @@ exports.integreatedSearch = async (req, res) => {
         });
     }
     catch(err) {
-        logger.error('[Tag Search, Controller ,tagSearch ERROR] :: ' + err.stack);
+        logger.error('[ Search Controller ,tagSearch ERROR] :: ' + err.stack);
         res.status(500).json({
-        success: false,
-        message: 'Internal Server Error',
-        error: err.message
+            success: false,
+            message: 'Internal Server Error',
+            error: err.message
         });
     }
 }
@@ -90,8 +105,13 @@ exports.integreatedSearch = async (req, res) => {
 
 /**
  * 태그 종류 목록 조회 컨트롤러
- * @route GET /tags
- * @returns {JSON} topicTags, genreTags, formatTags
+ * 
+ * @route GET /tag/list
+ * 
+ * @param {import('express').Request} req - HTTP 요청 객체
+ * @param {import('express').Response} res - HTTP 응답 객체
+ * 
+ * @returns {Promise<void>} topicTags, genreTags, formatTags를 포함한 JSON 응답 반환, 에러 시 500 상태 및 에러 메시지 반환
  */
  exports.getAllTags = async (req, res) => {
     try {
@@ -112,10 +132,14 @@ exports.integreatedSearch = async (req, res) => {
 };
 
 /**
- * integrated와 tag Searching 둘다 가능한 기능
+ * 통합 및 태그 검색 기능 컨트롤러
+ * 
  * @route GET /search
- * @param {Query} req.query : 사용자 지정 & 입력 
- * @returns {Object} reelsData  : 조건에 부합 하는 릴스 리스트
+ * 
+ * @param {import('express').Request} req - HTTP 요청 객체, req.query에 사용자 입력 검색어 포함
+ * @param {import('express').Response} res - HTTP 응답 객체
+ * 
+ * @returns {Promise<void>} 조건에 부합하는 릴스 리스트를 JSON 형식으로 응답, 에러 시 500 상태 및 에러 메시지 반환
  */
 exports.searchReels = async (req, res) => {
     try {
