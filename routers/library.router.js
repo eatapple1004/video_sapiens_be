@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const searchController = require("../controllers/search.controller");
 const libraryController = require("../controllers/library.controller");
-const { authenticate } = require("../middlewares/authMiddleware");
+const { authenticate }  = require("../middlewares/authMiddleware");
 
 
 //진행중

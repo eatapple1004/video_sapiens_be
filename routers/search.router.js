@@ -10,7 +10,7 @@ router.get("/search/tag",        searchController.tagSearch);
 router.get("/tag/list",          searchController.getAllTags);
 
 //진행중
-router.get("/search", searchController.searchReels);
+router.get("/search",            searchController.searchReels);
 
 //진행 예정
 //router.get("/search/creator");
