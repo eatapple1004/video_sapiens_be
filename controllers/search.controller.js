@@ -1,5 +1,6 @@
-const logger = require('../utils/logger');
-const searchService    = require("../services/search.service");
+const logger        = require('../utils/logger');
+const searchService = require("../services/search.service");
+
 const SearchResultVO   = require('../model/searchResultVO');
 const AnalyzedResultVO = require('../model/analyzedResultVO');
 
@@ -27,7 +28,7 @@ exports.integreatedSearch = async (req, res) => {
 
         // 4. analyzed result DB 조회
         const analyzedResultVOList = await searchService.getAnalyzedResult(integratedWhereClause);
-
+        
         // 5. 검색 결과 & 분석 결과 데이터 파싱
         const responsePayload = await searchService.mergeSearchAndAnalyzedResult(
             searchResultVOList,

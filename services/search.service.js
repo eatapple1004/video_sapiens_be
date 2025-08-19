@@ -1,7 +1,8 @@
-const logger = require("../utils/logger");
+const logger     = require("../utils/logger");
 const searchRepo = require("../repositories/search.repository");
-const SearchResultVO = require('../model/searchResultVO');
-const AnalyzedResultVO = require('../model/analyzedResultVO');
+
+const SearchResultVO                   = require('../model/searchResultVO');
+const AnalyzedResultVO                 = require('../model/analyzedResultVO');
 const MergedSearchAndAnalyzedResultDTO = require('../model/MergedSearchAndAnalyzedResultDTO');
 
 
