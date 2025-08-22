@@ -67,6 +67,7 @@ exports.registerUser = async (req, res) => {
  * @returns {void} 로그인 성공 시 JWT 토큰을 쿠키로 전송하고 성공 메시지 반환, 실패 시 에러 메시지 반환
  */
 exports.loginUser = async (req, res) => {
+  console.log("User Controller, loginUser called");
     const { email, password } = req.body;
     try {
       const token = await userService.loginUser(email, password);

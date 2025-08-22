@@ -118,6 +118,7 @@ exports.registerUser = async (email, password, otp) => {
  */
 exports.loginUser = async (email, plainPassword) => {
   try {
+    
     // 1. 이메일로 해시된 비밀번호 조회
     const hashedPassword = await userRepo.getPasswordHashByEmail(email);
     if (!hashedPassword) {
