@@ -14,7 +14,7 @@ class SearchResultVO {
       this.profile_image_url  = profile_image_url;
       this.creator_username   = creator_username;
     }
-  }
+}
   
-  module.exports = SearchResultVO;
+module.exports = SearchResultVO;
   

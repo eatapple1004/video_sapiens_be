@@ -1,4 +1,5 @@
 require("dotenv").config();
+require('./schedulers/trending.scheduler');
 
 //express 모듈 불러오기
 const express      = require("express");
@@ -29,10 +30,12 @@ app.use(cors({
 const user_router     = require('./routers/user.router');
 const search_router   = require('./routers/search.router');
 const library_router  = require('./routers/library.router');
+const trend_router    = require('./routers/trending.router');
 
 app.use('/api', user_router);
 app.use('/api', search_router);
 app.use('/api', library_router);
+app.use('/api', trend_router);
 app.use('/static', express.static('/home/rubi/BE/images'));
 
 app.use("/upload", express.static(path.join(__dirname, "/uploads")));
