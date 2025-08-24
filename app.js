@@ -27,15 +27,17 @@ app.use(cors({
     credentials: true  // 쿠키 및 인증 정보 허용
 }));
 
-const user_router     = require('./routers/user.router');
-const search_router   = require('./routers/search.router');
-const library_router  = require('./routers/library.router');
-const trend_router    = require('./routers/trending.router');
+const user_router       = require('./routers/user.router');
+const search_router     = require('./routers/search.router');
+const library_router    = require('./routers/library.router');
+const trend_router      = require('./routers/trending.router');
+const metaOEmbed_router = require('./routers/metaOEmbed.router');
 
 app.use('/api', user_router);
 app.use('/api', search_router);
 app.use('/api', library_router);
 app.use('/api', trend_router);
+app.use('/api', metaOEmbed_router);
 app.use('/static', express.static('/home/rubi/BE/images'));
 
 app.use("/upload", express.static(path.join(__dirname, "/uploads")));
