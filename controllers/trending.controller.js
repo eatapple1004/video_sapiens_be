@@ -4,6 +4,7 @@ const trendingService = require("../services/trending.service");
 exports.getTrendingPosts = async (req, res) => {
     //const topIdx = await redis.lRange('viral_post_top300', 0, 299);
     try {
+        console.log("get trend list request");
         const idxList = await redis.lRange('viral_post_top300', 0, 299); // 문자열 배열
         const posts = await trendingService.getPostListData(idxList);
     
