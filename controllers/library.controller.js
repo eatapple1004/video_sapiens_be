@@ -3,8 +3,10 @@ const searchService = require("../services/search.service");
 const libraryService = require("../services/library.service");
 const SearchResultVO = require('../model/searchResultVO');
 const AnalyzedResultVO = require('../model/analyzedResultVO');
+
+
 /**
- * 통합 검색 컨트롤러
+ * 라아브러리 유저 체크 컨트롤러
  * @param {string} userInputWord : 사용자 입력 검색어
  * @returns {JSON Array} 
  */
@@ -44,3 +46,34 @@ exports.retrieveCheckedMarkedVideos = async (req, res) => {
     }
 }
 
+
+/**
+ * Library Auto Insert Blank
+ * @param {string} videoUrl - 예: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+ * @returns {JSON} 
+ */
+exports.autoInsertBlankFromLibray = async (req, res) => {
+    const videoURL = req.body.videoUrl;
+    try {
+        // 1. 플랫폼 분기 처리 
+        const platformInfo = libraryService.detectPlatform(videoURL);
+        // 2. 분기 처리 기반 proxy data crowling request
+        switch(platformInfo.platform) {
+            case 'youtube' :
+                
+                break;
+            case 'instagram' :
+                
+                break;
+            case 'tiktok' :
+                
+                break;
+            default :
+                break;
+        }
+    }
+    catch(err) {
+
+    }
+
+}

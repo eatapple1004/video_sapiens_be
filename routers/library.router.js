@@ -4,10 +4,12 @@ const libraryController = require("../controllers/library.controller");
 const { authenticate }  = require("../middlewares/authMiddleware");
 
 
-//진행중
+// 완료
 router.get("/library", authenticate, libraryController.retrieveCheckedMarkedVideos);
 
+// 진행중
+router.post("/library/auto/insert", libraryController.autoInsertBlankFromLibray)
 
-//진행 예정
+// 진행 예정
 
 module.exports = router;
