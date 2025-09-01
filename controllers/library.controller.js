@@ -1,7 +1,9 @@
 const logger = require('../utils/logger');
-const searchService = require("../services/search.service");
+
+const searchService  = require("../services/search.service");
 const libraryService = require("../services/library.service");
-const SearchResultVO = require('../model/searchResultVO');
+
+const SearchResultVO   = require('../model/searchResultVO');
 const AnalyzedResultVO = require('../model/analyzedResultVO');
 
 
@@ -48,19 +50,60 @@ exports.retrieveCheckedMarkedVideos = async (req, res) => {
 
 
 /**
- * Library Auto Insert Blank
- * @param {string} videoUrl - 예: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
- * @returns {JSON} 
+ * Library Auto Insert (Blank)
+ *
+ * 플랫폼(YouTube/Instagram/TikTok)을 자동 판별한 뒤,
+ * 해당 플랫폼의 프록시 크롤링 로직으로 위임하여
+ * 영상/포스트의 핵심 메타(인게이지먼트 등)를 수집/저장한다.
+ *
+ * @route   POST /api/library/auto-insert
+ * @access  Private (권한 정책에 따라 조정)
+ *
+ * @param   {string} req.body.videoUrl  - 원본 URL (예: "https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+ *
+ * @param   {import('express').Response} res
+ * @returns {Promise<void>}              JSON 응답을 직접 전송한다.
+ *
+ * @typedef  {Object} PlatformInfoVO
+ * @property {('youtube'|'instagram'|'tiktok'|'unknown')} platform
+ * @property {string}   rawUrl
+ * @property {string?}  canonicalUrl
+ * @property {Object}   ids            - 식별자 묶음 (예: { videoId }, { shortcode }, { videoId, username })
+ * @property {Object}   meta           - 부가정보 (예: { isShorts }, { kind: 'p'|'reel'|'tv' })
+ *
+ *
+ * @example
+ * // Postman
+ * // POST http://localhost:3000/api/library/auto-insert
+ * // Body (raw JSON):
+ * // {
+ * //   "videoUrl": "https://youtu.be/dQw4w9WgXcQ"
+ * // }
+ *
+ * // 성공 응답(예)
+ * // {
+ * //   "platform": "youtube",
+ * //   "platformInfo": { ... },
+ * //   "data": { ...수집된 정규화 필드... }
+ * // }
+ *
+ * // 오류 응답(예)
+ * // 400: { "error": "videoUrl is required" }
+ * // 400: { "error": "Unsupported or unrecognized platform URL" }
+ * // 500: { "error": "<internal error message>" }
  */
 exports.autoInsertBlankFromLibray = async (req, res) => {
     const videoURL = req.body.videoUrl;
+    let   autoInsertData;
     try {
         // 1. 플랫폼 분기 처리 
         const platformInfo = libraryService.detectPlatform(videoURL);
+        console.log(platformInfo)
         // 2. 분기 처리 기반 proxy data crowling request
         switch(platformInfo.platform) {
             case 'youtube' :
-                
+                autoInsertData = await libraryService.retrieveYoutubeVideo(platformInfo);
+                console.log(autoInsertData);
                 break;
             case 'instagram' :
                 
@@ -71,9 +114,20 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
             default :
                 break;
         }
+        // 3. autoInser
+        res.status(200).json({
+            success: true,
+            message: '자동 입력 데이터 조회 성공',
+            data: autoInsertData
+        });
     }
     catch(err) {
-
+        logger.error('[ Search Controller ,integreatedSearch ERROR] :: ' + err.stack);
+        res.status(500).json({
+            success: false,
+            message: 'Internal Server Error',
+            error: err.message
+        });
     }
 
 }
