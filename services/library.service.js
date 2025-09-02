@@ -9,6 +9,7 @@ const SearchResultVO                    = require('../model/searchResultVO');
 const AnalyzedResultVO                  = require('../model/analyzedResultVO');
 const MergedSearchAndAnalyzedResultDTO  = require('../model/MergedSearchAndAnalyzedResultDTO');
 const PlatformInfoVO                    = require('../model/platformInfoVO');
+const AutoInsertResDTO                  = require('../model/autoInsertResDTO');
 
 /**
  * 유저 이메일를 이용하여 유저를 식별후
@@ -49,6 +50,7 @@ exports.makeMarkedWhereClause = async (userInputIntegarted) => {
  * 반환: { platform, rawUrl, canonicalUrl, ids, meta }
  */
  exports.detectPlatform = function detectPlatform(rawUrl) {
+    console.log("URL :: " + rawUrl);
     if (!rawUrl || typeof rawUrl !== 'string') {
         return new PlatformInfoVO({ 
             platform: 'unknown', 
@@ -198,7 +200,7 @@ exports.retrieveYoutubeVideo = async (platformInfo) => {
             url: platformInfo.rawUrl,
             ids: platformInfo.ids
         });
-    
+
         // 성공 시 데이터 반환
         console.log(response.data);
         return response.data;
@@ -206,6 +208,25 @@ exports.retrieveYoutubeVideo = async (platformInfo) => {
     } catch (error) {
         console.error('[retrieveYoutubeVideo] error:', error.message);
         // 에러를 상위 컨트롤러까지 던짐
+        throw error;
+    }
+}
+
+
+exports.makeAutoInsertResDTO = async (data) => {
+    try{
+        return new AutoInsertResDTO({
+            platform          : data.platform,
+            views             : data.views,
+            likes             : data.likes,
+            comments          : data.comments,
+            creator           : data.creator,
+            video_title       : data.video_title,
+            video_description : data.video_description,
+            upload_date       : data.upload_date
+        });
+    }
+    catch(err) {
         throw error;
     }
 }

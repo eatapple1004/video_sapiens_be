@@ -93,17 +93,18 @@ exports.retrieveCheckedMarkedVideos = async (req, res) => {
  * // 500: { "error": "<internal error message>" }
  */
 exports.autoInsertBlankFromLibray = async (req, res) => {
-    const videoURL = req.body.videoUrl;
+    //const videoURL = req.body.videoUrl;
+    const { url } = req.query;
     let   autoInsertData;
     try {
         // 1. 플랫폼 분기 처리 
-        const platformInfo = libraryService.detectPlatform(videoURL);
+        const platformInfo = libraryService.detectPlatform(url);
         console.log(platformInfo)
         // 2. 분기 처리 기반 proxy data crowling request
         switch(platformInfo.platform) {
             case 'youtube' :
                 autoInsertData = await libraryService.retrieveYoutubeVideo(platformInfo);
-                console.log(autoInsertData);
+                //console.log(autoInsertData);
                 break;
             case 'instagram' :
                 
@@ -114,11 +115,15 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
             default :
                 break;
         }
-        // 3. autoInser
+
+        // 3. DTO 생성
+        const autoInsertResDTO = await libraryService.makeAutoInsertResDTO(autoInsertData);
+
+        // 3. response 생성
         res.status(200).json({
             success: true,
             message: '자동 입력 데이터 조회 성공',
-            data: autoInsertData
+            data: autoInsertResDTO
         });
     }
     catch(err) {
