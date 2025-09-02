@@ -165,6 +165,8 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
 
 
         // 7. post 테이블 유무 확인
+        
+
 
         // 8. 비디오 Insert or Update
 
