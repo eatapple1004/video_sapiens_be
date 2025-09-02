@@ -1,3 +1,5 @@
+const logger = require("../utils/logger");
+
 const gerneralRepo = require("../repositories/general.repository");
 
 /**
@@ -8,13 +10,19 @@ const gerneralRepo = require("../repositories/general.repository");
  * instagram : ig_id
  * tiktok    : ?
  */
-exports.detectCreatorByID= async (creator_id) => {
+exports.selectCreatorByID= async (creator_id) => {
 
-    try{
-        
-    }
-    catch(err) {
-
+    try {
+        if (!creator_id || typeof creator_id !== 'string') {
+            throw new Error('Invalid creator_id: must be a non-empty string');
+        }
+    
+        const creatorIdx = await gerneralRepo.selectCreatorByID(creator_id);
+        return creatorIdx; // number or false
+    } catch (err) {
+        logger.error('[Service: detectCreatorByID] :: ' + err.stack);
+        throw err;
     }
 
 }
+

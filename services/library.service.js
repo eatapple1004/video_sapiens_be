@@ -206,7 +206,7 @@ exports.retrieveYoutubeVideo = async (platformInfo) => {
         return response.data;
     
     } catch (error) {
-        console.error('[retrieveYoutubeVideo] error:', error.message);
+        logger.error('[retrieveYoutubeVideo] error:', error.message);
         // 에러를 상위 컨트롤러까지 던짐
         throw error;
     }
@@ -232,3 +232,21 @@ exports.makeAutoInsertResDTO = async (data) => {
 }
 
 
+exports.getYoutubeChannelData = async (channerID) => {
+    try{
+        // 프록시 서버 주소 (예시: process.env.PROXY_SERVER_URL 환경변수)
+        const proxyUrl = process.env.DEF_PROXY_DEV_URL || 'http://localhost:3000';
+    
+        // 실제 요청 (예시로 canonicalUrl 전달)
+        const response = await axios.post(`${proxyUrl}/youtube/channel`, {
+            source: channerID
+        });
+
+        return response.data;
+    }
+    catch(err) {
+        logger.error('[getYoutubeChannelData] error:', error.message);
+        // 에러를 상위 컨트롤러까지 던짐
+        throw error;
+    }
+} 

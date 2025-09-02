@@ -1,7 +1,8 @@
 const logger = require('../utils/logger');
 
-const searchService  = require("../services/search.service");
-const libraryService = require("../services/library.service");
+const searchService   = require("../services/search.service");
+const libraryService  = require("../services/library.service");
+const gerneralService = require("../services/general.service");
 
 const SearchResultVO   = require('../model/searchResultVO');
 const AnalyzedResultVO = require('../model/analyzedResultVO');
@@ -126,16 +127,40 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
             data: autoInsertResDTO
         });
 
-        // 4. 채널 유무 확인
-        const channelID = autoInsertData.channel_id;
+        // 4. 채널 조회 요청
+        let channelInfo;
+        switch(platformInfo.platform) {
+            case 'youtube' :
+                const channelID = autoInsertData.channel_id;
+                channelInfo = await libraryService.getYoutubeChannelData(channelID);
+                console.log(channelInfo);
+                break;
+            case 'instagram' :
+                
+                break;
+            case 'tiktok' :
+                
+                break;
+            default :
+                break;
+        }
         
 
+        // 5. 채널 유무 확인
+        const channelID = autoInsertData.channel_id;
+        const creatorIdxResult = await gerneralService.selectCreatorByID(channelID);
 
-        // 5. 채널 Insert or Update
+        // 6. 채널 Insert or Update
+        if (creatorIdxResult !== false) {
+            
+        } else {
+            
+        }
 
-        // 6. post 테이블 유무 확인
 
-        // 7. 비디오 Insert or Update
+        // 7. post 테이블 유무 확인
+
+        // 8. 비디오 Insert or Update
 
         
     }
