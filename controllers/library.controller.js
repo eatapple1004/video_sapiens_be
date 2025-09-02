@@ -128,11 +128,12 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
         });
 
         // 4. 채널 조회 요청
-        let channelInfo;
+        let creatorTableEntity;
         switch(platformInfo.platform) {
             case 'youtube' :
                 const channelID = autoInsertData.channel_id;
-                channelInfo = await libraryService.getYoutubeChannelData(channelID);
+                const youtubeChannelData = await libraryService.getYoutubeChannelData(channelID);
+                
                 console.log(channelInfo);
                 break;
             case 'instagram' :

@@ -2,6 +2,8 @@ const logger = require("../utils/logger");
 
 const gerneralRepo = require("../repositories/general.repository");
 
+const CreatorTableEntity = require('../model/Entity/creatorTableEntity');
+
 /**
  * 
  * @param {*} creator_id 
@@ -26,8 +28,17 @@ exports.selectCreatorByID = async (creator_id) => {
 
 }
 
+exports.convertYoutubeChannelDataToEntity = async (youtubeChannelData) => {
+    try{
+
+    }
+    catch(err) {
+
+    }
+}
+
 exports.insertCreator = async (creatorInfo) => {
-    
+
 }
 
 exports.updateCreator = async (creatorInfo) => {
