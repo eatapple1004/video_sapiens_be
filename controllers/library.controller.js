@@ -125,6 +125,19 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
             message: '자동 입력 데이터 조회 성공',
             data: autoInsertResDTO
         });
+
+        // 4. 채널 유무 확인
+        const channelID = autoInsertData.channel_id;
+        
+
+
+        // 5. 채널 Insert or Update
+
+        // 6. post 테이블 유무 확인
+
+        // 7. 비디오 Insert or Update
+
+        
     }
     catch(err) {
         logger.error('[ Search Controller ,integreatedSearch ERROR] :: ' + err.stack);

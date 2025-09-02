@@ -230,3 +230,5 @@ exports.makeAutoInsertResDTO = async (data) => {
         throw error;
     }
 }
+
+
