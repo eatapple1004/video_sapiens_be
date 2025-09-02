@@ -2,7 +2,6 @@ const logger = require("../utils/logger");
 
 const gerneralRepo = require("../repositories/general.repository");
 
-const CreatorTableEntity = require('../model/Entity/creatorTableEntity');
 
 /**
  * 
@@ -28,13 +27,20 @@ exports.selectCreatorByID = async (creator_id) => {
 
 }
 
-exports.convertYoutubeChannelDataToEntity = async (youtubeChannelData) => {
-    try{
+exports.checkExistCreatorByID = async (creator_id) => {
 
+    try {
+        if (!creator_id || typeof creator_id !== 'string') {
+            throw new Error('Invalid creator_id: must be a non-empty string');
+        }
+    
+        const result = await gerneralRepo.checkExistCreatorByID(creator_id);
+        return result; // number or false
+    } catch (err) {
+        logger.error('[Service: detectCreatorByID] :: ' + err.stack);
+        throw err;
     }
-    catch(err) {
 
-    }
 }
 
 exports.insertCreator = async (creatorInfo) => {

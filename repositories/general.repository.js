@@ -6,7 +6,7 @@ const logger = require("../utils/logger");
  * @param {string} ig_id - Instagram 고유 ID
  * @returns {number|null} 해당 크리에이터의 idx (없으면 null)
  */
- exports.selectCreatorByID = async (ig_id) => {
+exports.selectCreatorByID = async (ig_id) => {
     try {
         const query = `SELECT idx FROM creator WHERE ig_id = $1`;
         const result = await db.query(query, [ig_id]);
@@ -19,5 +19,26 @@ const logger = require("../utils/logger");
     } catch (err) {
         logger.error('[selectCreatorByID ERROR] ::', err.stack);
         throw err; // 호출한 측에서 처리할 수 있도록 throw
+    }
+};
+
+/**
+ * Instagram ig_id 기준으로 Creator row 존재 여부 확인
+ * @param {string} ig_id 
+ * @returns {boolean} true: 존재함 / false: 존재하지 않음
+ */
+ exports.checkExistCreatorByID = async (ig_id) => {
+    try {
+        const query = `
+            SELECT EXISTS (
+                SELECT 1 FROM creator WHERE ig_id = $1
+            )
+        `;
+        const result = await db.query(query, [ig_id]);
+
+        return result.rows[0].exists;  // true or false
+    } catch (err) {
+        logger.error('[checkExistCreatorByID ERROR] ::', err.stack);
+        throw err; // 상위 로직에서 에러 핸들링하도록 전달
     }
 };

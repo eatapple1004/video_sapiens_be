@@ -133,8 +133,8 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
             case 'youtube' :
                 const channelID = autoInsertData.channel_id;
                 const youtubeChannelData = await libraryService.getYoutubeChannelData(channelID);
-                
-                console.log(channelInfo);
+                creatorTableEntity = await libraryService.convertYoutubeChannelDataToEntity(youtubeChannelData);
+                console.log(creatorTableEntity);
                 break;
             case 'instagram' :
                 
@@ -149,13 +149,13 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
 
         // 5. 채널 유무 확인
         const channelID = autoInsertData.channel_id;
-        const creatorIdxResult = await gerneralService.selectCreatorByID(channelID);
+        const creatorIdxResult = await gerneralService.checkExistCreatorByID(channelID);
 
         // 6. 채널 Insert or Update
         if (creatorIdxResult !== false) {
             // Update
             console.log('update is called');
-
+            
         } else {
             // Insert
             console.log('insert is called');

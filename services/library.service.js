@@ -10,6 +10,8 @@ const AnalyzedResultVO                  = require('../model/analyzedResultVO');
 const MergedSearchAndAnalyzedResultDTO  = require('../model/MergedSearchAndAnalyzedResultDTO');
 const PlatformInfoVO                    = require('../model/platformInfoVO');
 const AutoInsertResDTO                  = require('../model/autoInsertResDTO');
+const CreatorTableEntity                = require('../model/Entity/creatorTableEntity');
+
 
 /**
  * 유저 이메일를 이용하여 유저를 식별후
@@ -249,4 +251,69 @@ exports.getYoutubeChannelData = async (channerID) => {
         // 에러를 상위 컨트롤러까지 던짐
         throw error;
     }
-} 
+}
+
+/**
+ * YouTube 채널 메타데이터를 CreatorTableEntity로 변환
+ * @param {Object} youtubeChannelData
+ * @returns {CreatorTableEntity}
+ */
+ exports.convertYoutubeChannelDataToEntity = async (youtubeChannelData) => {
+    try {
+        const entity = new CreatorTableEntity({
+            idx: null, // INSERT 시에는 null 또는 생략
+            platform: 'youtube',
+            biography: youtubeChannelData.description ?? null,
+            followers: parseSubscribersText(youtubeChannelData.subscribers_text), // YouTube는 subscriber 숫자를 파싱해야함 (원하는 경우 파싱 로직 추가 가능)
+            followings: null, // YouTube에선 불가
+            full_name: youtubeChannelData.title ?? null,
+            ig_id: youtubeChannelData.ChannelId ?? null, // YouTube에선 channelId를 ig_id 필드에 임시로 저장
+            category_name: null, // YouTube에는 카테고리 정보 없음
+            username: youtubeChannelData.handle ?? null, // @handle
+            profile_pic_url: youtubeChannelData.avatars?.url ?? null,
+            relate_profile: null, // YouTube는 연관 프로필 없음
+            created_at: new Date(),
+            updated_at: new Date()
+        });
+
+        return entity;
+    } catch (err) {
+        console.error('[convertYoutubeChannelDataToEntity ERROR] ::', err.stack);
+        throw err;
+    }
+};
+
+/**
+ * YouTube 구독자 문자열 → 숫자로 파싱
+ * @param {string} subscribersText - 예: '607K subscribers', '1.2M subscribers'
+ * @returns {number|null} 파싱된 구독자 수 (실패 시 null)
+ */
+ function parseSubscribersText(subscribersText) {
+    if (!subscribersText || typeof subscribersText !== 'string') return null;
+
+    const match = subscribersText.match(/^([\d,.]+)([KM]?)\s+subscribers$/i);
+
+    if (!match) return null;
+
+    let [ , numberStr, unit ] = match;
+    numberStr = numberStr.replace(',', ''); // 쉼표 제거
+
+    let number = parseFloat(numberStr);
+
+    switch (unit.toUpperCase()) {
+        case 'K':
+            number *= 1_000;
+            break;
+        case 'M':
+            number *= 1_000_000;
+            break;
+        // 'B' 같은 단위가 들어올 수도 있음
+        case 'B':
+            number *= 1_000_000_000;
+            break;
+        default:
+            break;
+    }
+
+    return Math.round(number);
+}
