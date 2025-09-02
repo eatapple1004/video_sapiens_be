@@ -10,7 +10,7 @@ const gerneralRepo = require("../repositories/general.repository");
  * instagram : ig_id
  * tiktok    : ?
  */
-exports.selectCreatorByID= async (creator_id) => {
+exports.selectCreatorByID = async (creator_id) => {
 
     try {
         if (!creator_id || typeof creator_id !== 'string') {
@@ -26,3 +26,10 @@ exports.selectCreatorByID= async (creator_id) => {
 
 }
 
+exports.insertCreator = async (creatorInfo) => {
+    
+}
+
+exports.updateCreator = async (creatorInfo) => {
+    
+}

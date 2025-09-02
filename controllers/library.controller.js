@@ -152,9 +152,12 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
 
         // 6. 채널 Insert or Update
         if (creatorIdxResult !== false) {
-            
+            // Update
+            console.log('update is called');
+
         } else {
-            
+            // Insert
+            console.log('insert is called');
         }
 
 
