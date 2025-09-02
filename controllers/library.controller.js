@@ -2,7 +2,7 @@ const logger = require('../utils/logger');
 
 const searchService   = require("../services/search.service");
 const libraryService  = require("../services/library.service");
-const gerneralService = require("../services/general.service");
+const generalService = require("../services/general.service");
 
 const SearchResultVO   = require('../model/searchResultVO');
 const AnalyzedResultVO = require('../model/analyzedResultVO');
@@ -149,16 +149,18 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
 
         // 5. 채널 유무 확인
         const channelID = autoInsertData.channel_id;
-        const creatorIdxResult = await gerneralService.checkExistCreatorByID(channelID);
+        const creatorIdxResult = await generalService.checkExistCreatorByID(channelID);
 
         // 6. 채널 Insert or Update
         if (creatorIdxResult !== false) {
             // Update
             console.log('update is called');
-            
+
         } else {
             // Insert
             console.log('insert is called');
+            const result = generalService.insertCreatorTable(creatorTableEntity);
+            console.log(result);
         }
 
 

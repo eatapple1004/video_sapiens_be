@@ -42,3 +42,55 @@ exports.selectCreatorByID = async (ig_id) => {
         throw err; // 상위 로직에서 에러 핸들링하도록 전달
     }
 };
+
+/**
+ * CreatorTableEntity 객체를 DB에 INSERT
+ * @param {CreatorTableEntity} creatorTableEntity 
+ * @returns {number} 새로 삽입된 row의 idx (Primary Key)
+ */
+ exports.insertCreatorTable = async (creatorTableEntity) => {
+    try {
+        const query = `
+            INSERT INTO creator (
+                platform,
+                biography,
+                followers,
+                followings,
+                full_name,
+                ig_id,
+                category_name,
+                username,
+                profile_pic_url,
+                relate_profile,
+                created_at,
+                updated_at
+            ) VALUES (
+                $1, $2, $3, $4, $5, $6,
+                $7, $8, $9, $10, $11, $12
+            )
+            RETURNING idx;
+        `;
+
+        const values = [
+            creatorTableEntity.platform,
+            creatorTableEntity.biography,
+            creatorTableEntity.followers,
+            creatorTableEntity.followings,
+            creatorTableEntity.full_name,
+            creatorTableEntity.ig_id,
+            creatorTableEntity.category_name,
+            creatorTableEntity.username,
+            creatorTableEntity.profile_pic_url,
+            creatorTableEntity.relate_profile,
+            creatorTableEntity.created_at,
+            creatorTableEntity.updated_at
+        ];
+
+        const result = await db.query(query, values);
+        return result.rows[0].idx;
+
+    } catch (err) {
+        logger.error('[insertCreatorTable ERROR] ::', err.stack);
+        throw err;
+    }
+};

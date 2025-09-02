@@ -1,6 +1,6 @@
 const logger = require("../utils/logger");
 
-const gerneralRepo = require("../repositories/general.repository");
+const generalRepo = require("../repositories/general.repository");
 
 
 /**
@@ -18,7 +18,7 @@ exports.selectCreatorByID = async (creator_id) => {
             throw new Error('Invalid creator_id: must be a non-empty string');
         }
     
-        const creatorIdx = await gerneralRepo.selectCreatorByID(creator_id);
+        const creatorIdx = await generalRepo.selectCreatorByID(creator_id);
         return creatorIdx; // number or false
     } catch (err) {
         logger.error('[Service: detectCreatorByID] :: ' + err.stack);
@@ -34,7 +34,7 @@ exports.checkExistCreatorByID = async (creator_id) => {
             throw new Error('Invalid creator_id: must be a non-empty string');
         }
     
-        const result = await gerneralRepo.checkExistCreatorByID(creator_id);
+        const result = await generalRepo.checkExistCreatorByID(creator_id);
         return result; // number or false
     } catch (err) {
         logger.error('[Service: detectCreatorByID] :: ' + err.stack);
@@ -43,8 +43,19 @@ exports.checkExistCreatorByID = async (creator_id) => {
 
 }
 
-exports.insertCreator = async (creatorInfo) => {
-
+exports.insertCreatorTable = async (creatorTableEntity) => {
+    try{
+        if (!creatorTableEntity) {
+            throw new Error('Invalid creator_id: must be a non-empty creatorTableEntity');
+        }
+    
+        const result = await generalRepo.insertCreatorTable(creatorTableEntity);
+        return result; // number or false
+    }
+    catch{
+        logger.error('[insertCreatorTable] :: ' + err.stack);
+        throw err;
+    }
 }
 
 exports.updateCreator = async (creatorInfo) => {
