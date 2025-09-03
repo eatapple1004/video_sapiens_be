@@ -11,7 +11,7 @@ const MergedSearchAndAnalyzedResultDTO  = require('../model/MergedSearchAndAnaly
 const PlatformInfoVO                    = require('../model/platformInfoVO');
 const AutoInsertResDTO                  = require('../model/autoInsertResDTO');
 const CreatorTableEntity                = require('../model/Entity/creatorTableEntity');
-
+const PostTableEntity                   = require('../model/Entity/postTableEntity');
 
 /**
  * 유저 이메일를 이용하여 유저를 식별후
@@ -317,3 +317,57 @@ exports.getYoutubeChannelData = async (channerID) => {
 
     return Math.round(number);
 }
+
+/**
+ * YouTube 영상 메타데이터를 PostTableEntity로 변환
+ * @param {Object} youtubeVideoData - YouTube 메타데이터 객체
+ * @param {number} creatorIdx - 관련된 creator 테이블의 idx
+ * @returns {PostTableEntity}
+ */
+ exports.convertYoutubeVideoToPostEntity = (youtubeVideoData) => {
+    const {
+      video_title,
+      video_id,
+      uploader,
+      channel_id,
+      videoURL,
+      views,
+      likes,
+      comments,
+      duration,
+      upload_date,
+      categories,
+      tags,
+      uploader_id,
+      video_description,
+      timestamp
+    } = youtubeVideoData;
+  
+    return new PostTableEntity({
+      creator_idx: null,
+      owner_id: channel_id,
+      owner_username: uploader,
+      typename: 'youtube',
+      post_id: channel_id, // 또는 video id를 따로 추가해도 됨
+      shortcode: video_id,     // YouTube에는 shortcode 없음
+      width: null,
+      height: null,
+      is_video: true,
+      has_audio: true, // YouTube 영상은 기본적으로 오디오 있음
+      video_view_count: views,
+      caption: video_description || video_title,
+      comment_count: comments,
+      like_count: likes,
+      preview_like_count: null,
+      taken_at: timestamp ? new Date(timestamp * 1000) : null,
+      song_name: null,
+      artist_name: null,
+      audio_id: null,
+      is_original_song: null,
+      created_at: new Date(),
+      updated_at: new Date(),
+      video_url: videoURL,
+      thumbnail_url: null, // 썸네일 URL이 별도 있으면 추가
+      viral_score: 0
+    });
+  };

@@ -96,15 +96,19 @@ exports.retrieveCheckedMarkedVideos = async (req, res) => {
 exports.autoInsertBlankFromLibray = async (req, res) => {
     //const videoURL = req.body.videoUrl;
     const { url } = req.query;
-    let   autoInsertData;
+    let autoInsertData;
+    let postTableEntity;
     try {
         // 1. 플랫폼 분기 처리 
         const platformInfo = libraryService.detectPlatform(url);
         console.log(platformInfo)
+
         // 2. 분기 처리 기반 proxy data crowling request
         switch(platformInfo.platform) {
             case 'youtube' :
                 autoInsertData = await libraryService.retrieveYoutubeVideo(platformInfo);
+                postTableEntity = await libraryService.convertYoutubeVideoToPostEntity(autoInsertData);
+
                 //console.log(autoInsertData);
                 break;
             case 'instagram' :
@@ -149,7 +153,7 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
 
         // 5. 채널 유무 확인
         const channelID = autoInsertData.channel_id;
-        const creatorIdxResult = await generalService.checkExistCreatorByID(channelID);
+        let creatorIdxResult = await generalService.selectCreatorByID(channelID);
 
         // 6. 채널 Insert or Update
         if (creatorIdxResult !== false) {
@@ -159,16 +163,30 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
         } else {
             // Insert
             console.log('insert is called');
-            const result = generalService.insertCreatorTable(creatorTableEntity);
+            const resultIdx = generalService.insertCreatorTable(creatorTableEntity);
+            creatorIdxResult = resultIdx;
             console.log(result);
         }
 
 
         // 7. post 테이블 유무 확인
-        
-
+        const postIdxResult = await generalService.selectPostIdxByShortcode(postTableEntity.shortcode);
 
         // 8. 비디오 Insert or Update
+        postTableEntity.creator_idx = creatorIdxResult;
+        if (creatorIdxResult !== false) {
+            // Update
+            console.log('update is called');
+
+        } else {
+            // Insert
+            console.log('insert is called');
+            const resultIdx = generalService.insertPostTable(postTableEntity);
+            
+            console.log(result);
+        }
+
+        
 
         
     }

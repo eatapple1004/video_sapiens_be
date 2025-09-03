@@ -58,6 +58,50 @@ exports.insertCreatorTable = async (creatorTableEntity) => {
     }
 }
 
-exports.updateCreator = async (creatorInfo) => {
+exports.updateCreatorTable = async (creatorInfo) => {
+    try{
+
+    }
+    catch(err) {
+        
+    }
+}
+
+
+exports.selectPostIdxByShortcode = async (shortcode) => {
+    try{
+        if (!shortcode) {
+            throw new Error('Invalid creator_id: must be a non-empty creatorTableEntity');
+        }
+
+        const result = await generalRepo.selectPostIdxByShortcode(shortcode);
+        return result;
+    }
+    catch(err) {
+        logger.error('[Service: selectPostIdxByShortcode] :: ' + err.stack);
+        throw err;
+    }
+}
+
+exports.insertPostTable = async (postTableEntity) => {
+    try{
+        if (!postTableEntity) {
+            throw new Error('Invalid creator_id: must be a non-empty creatorTableEntity');
+        }
     
+        const result = await generalRepo.insertPostTable(postTableEntity);
+        return result; // number or false
+    }
+    catch(err) {
+        
+    }
+}
+
+exports.updatePostTable = async (postTableEntity) => {
+    try{
+
+    }
+    catch(err) {
+        
+    }
 }
