@@ -174,16 +174,16 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
 
         // 8. 비디오 Insert or Update
         postTableEntity.creator_idx = creatorIdxResult;
-        if (creatorIdxResult !== false) {
+        if (postIdxResult !== false) {
             // Update
             console.log('update is called');
 
         } else {
             // Insert
             console.log('insert is called');
-            const resultIdx = generalService.insertPostTable(postTableEntity);
+            const resultIdx = await generalService.insertPostTable(postTableEntity);
             
-            console.log(result);
+            console.log(resultIdx);
         }
 
         

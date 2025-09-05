@@ -145,7 +145,7 @@ exports.insertPostTable = async (postTableEntity) => {
                 $1, $2, $3, $4, $5, $6,
                 $7, $8, $9, $10, $11, $12,
                 $13, $14, $15, $16, $17, $18,
-                $19, $20, $21, $22, NOW(), NOW()
+                $19, $20, $21, $22, NOW(), NOW(),
                 $23, $24
             )
             RETURNING idx;
@@ -183,7 +183,7 @@ exports.insertPostTable = async (postTableEntity) => {
 
         await db.query("SET TIME ZONE 'Asia/Seoul'");
         const result = await pool.query(query, values);
-        return result;
+        return result.rows[0].idx;
         
     }
     catch(err) {
