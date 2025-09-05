@@ -8,7 +8,7 @@ const { authenticate }  = require("../middlewares/authMiddleware");
 router.get("/library", authenticate, libraryController.retrieveCheckedMarkedVideos);
 
 // 진행중
-router.get("/library/auto/insert", libraryController.autoInsertBlankFromLibray)
+router.get("/library/metadata", libraryController.autoInsertBlankFromLibray)
 
 // 진행 예정
 
