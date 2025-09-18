@@ -21,7 +21,13 @@ app.use(cors({
             "https://www.api.videosapiens.ai", 
             "https://videosapiens.ai", 
             "https://www.videosapiens.ai",
-            "http://localhost:3000"],  // 허용할 도메인
+            "http://localhost:3000",
+            "http://175.211.78.242:8000/",
+            "http://192.168.1.31:8000/",
+            "http://192.168.0.120:8000/",
+            "https://175.211.78.242:8000/",
+            "https://192.168.1.31:8000/",
+            "https://192.168.0.120:8000/"],  // 허용할 도메인
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // 허용할 HTTP 메서드
     allowedHeaders: ["Content-Type", "Authorization"], // 허용할 헤더
     credentials: true  // 쿠키 및 인증 정보 허용
@@ -62,6 +68,36 @@ app.use((req, res, next) => {
 if(process.env.DEF_USING_HTTP == "true") {
     if(typeof process.env.DEF_EVP_LOCAL_HTTP_PORT != 'undefined') {
         // Create an HTTP service.
+        http.createServer(app).listen(
+            process.env.DEF_EVP_LOCAL_HTTP_PORT,
+            "0.0.0.0",   // <- 여기 중요!
+            () => console.log(
+                process.env.DEF_APP_TITLE + 
+                " HTTP Server For Test(" + process.env.DEF_EVP_LOCAL_HTTP_PORT +")"
+            )
+        );
+    }
+}
+
+// HTTPS도 동일하게 host 추가
+if(process.env.DEF_USING_HTTPS == "true") {
+    if(typeof process.env.DEF_EVP_LOCAL_HTTPS_PORT != 'undefined') {
+        https.createServer(options, app).listen(
+            process.env.DEF_EVP_LOCAL_HTTPS_PORT,
+            "0.0.0.0",   // <- 여기 중요!
+            () => console.log(
+                process.env.DEF_APP_TITLE + 
+                " HTTPS Server For Test(" + process.env.DEF_EVP_LOCAL_HTTPS_PORT +")"
+            )
+        );
+    }
+}
+
+  /*
+//HTTP 서버 시작
+if(process.env.DEF_USING_HTTP == "true") {
+    if(typeof process.env.DEF_EVP_LOCAL_HTTP_PORT != 'undefined') {
+        // Create an HTTP service.
         http.createServer(app).listen(process.env.DEF_EVP_LOCAL_HTTP_PORT, () => console.log(process.env.DEF_APP_TITLE  + " HTTP Server For Test(" + process.env.DEF_EVP_LOCAL_HTTP_PORT +")"));
     }
 }
@@ -73,3 +109,4 @@ if(process.env.DEF_USING_HTTPS == true) {
         https.createServer(options, app).listen(process.env.DEF_EVP_LOCAL_HTTPS_PORT,  () => console.log(process.env.DEF_APP_TITLE  + " HTTPS Server For Test(" + process.env.DEF_EVP_LOCAL_HTTPS_PORT +")"));
     }
 }
+    */
