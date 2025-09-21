@@ -204,6 +204,7 @@ exports.retrieveYoutubeVideo = async (platformInfo) => {
         });
 
         // 성공 시 데이터 반환
+        console.log("Response Data :: ");
         console.log(response.data);
         return response.data;
     
