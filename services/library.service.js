@@ -220,13 +220,15 @@ exports.makeAutoInsertResDTO = async (data) => {
     try{
         return new AutoInsertResDTO({
             platform          : data.platform,
+            short_code        : data.video_id,
             views             : data.views,
             likes             : data.likes,
             comments          : data.comments,
             creator           : data.creator,
             video_title       : data.video_title,
             video_description : data.video_description,
-            upload_date       : data.upload_date
+            upload_date       : data.upload_date,
+            thumbnail_url     : data.thumbnail_url,
         });
     }
     catch(err) {
@@ -350,7 +352,7 @@ exports.getYoutubeChannelData = async (channerID) => {
       owner_username: uploader,
       typename: 'youtube',
       post_id: channel_id, // 또는 video id를 따로 추가해도 됨
-      shortcode: video_id,     // YouTube에는 shortcode 없음
+      short_code: video_id,     // YouTube에는 shortcode 없음
       width: null,
       height: null,
       is_video: true,
