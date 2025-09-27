@@ -32,7 +32,7 @@ exports.integreatedSearch = async (req, res) => {
         const analyzedResultVOList  = await searchService.getAnalyzedResult(integratedWhereClause);
         
         // 5. 검색 결과 & 분석 결과 데이터 파싱
-        const responsePayload       = await searchService.mergeSearchAndAnalyzedResult(
+        let responsePayload         = await searchService.mergeSearchAndAnalyzedResult(
             searchResultVOList,
             analyzedResultVOList
         );
@@ -47,7 +47,7 @@ exports.integreatedSearch = async (req, res) => {
             const platform_shortcodes = await generalService.getPlatformShortcodes(markList);
 
             // 5.1-3. 검색 결과와 비교하여 searchResultVO의 is_marked 값 표시
-            
+            responsePayload = await searchService.markMatchedShortcodes(responsePayload, platform_shortcodes);
         }
 
         // 6. 통합 검색 결과 response 반환

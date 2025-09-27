@@ -448,14 +448,14 @@ exports.parseUserInputQuery = async (userInputFilter) => {
 
 /**
  * JSON 데이터 안에서 platform_shortcode를 비교하여 is_marked 값 세팅
- * @param {Object[]} jsonData - search_result + analyzed_result 구조의 JSON 배열
+ * @param {Object[]} responsePayload - search_result + analyzed_result 구조의 JSON 배열
  * @param {string[]} platformShortcodes - DB에서 뽑아온 platform_shortcode 리스트
  * @returns {Object[]} - is_marked 값이 채워진 JSON 배열
  */
- exports.markMatchedShortcodes = (jsonData, platformShortcodes) => {
-  if (!Array.isArray(jsonData)) return [];
+ exports.markMatchedShortcodes = (responsePayload, platformShortcodes) => {
+  if (!Array.isArray(responsePayload)) return [];
 
-  return jsonData.map(item => {
+  return responsePayload.map(item => {
     if (!item.search_result) return item;
 
     const { platform_shortcode } = item.search_result;
