@@ -199,3 +199,25 @@ exports.updatePostTable = async (creatorInfo) => {
         
     }
 }
+
+
+/**
+ * 주어진 idx 리스트에 해당하는 영상들의 platform과 video_code를 조회
+ * @param {number[]} idxList - analyzed_video.idx 리스트
+ * @returns {Promise<{ platform: string, video_code: string }[]>}
+ */
+ exports.findPlatformAndCodeByIdxList = async (idxList) => {
+    if (!idxList || idxList.length === 0) {
+        return [];
+    }
+  
+    const query = `
+        SELECT platform, video_code
+        FROM analyzed_video
+        WHERE idx = ANY($1)
+    `;
+  
+    const values = [idxList];
+    const { rows } = await db.query(query, values);
+    return rows;
+  };

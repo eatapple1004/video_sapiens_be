@@ -105,3 +105,34 @@ exports.updatePostTable = async (postTableEntity) => {
         
     }
 }
+
+
+/**
+ * Get Mark_List (Analyzed_Video_idx) by UserEmail
+ * @param {Object} userEmail - parseUserInputFilter 결과 객체
+ * @returns {List} mark_list 
+ */
+exports.getMarkListByUserEmail = async (userEmail) => {
+    try {
+
+    }
+    catch (err) {
+
+    }
+}
+
+
+
+/**
+ * idx 리스트를 받아 platform_shortcode 리스트 반환
+ * @param {number[]} markList - analyzed_video.idx 리스트
+ * @returns {Promise<string[]>} - platform_shortcode 리스트
+ */
+ exports.getPlatformShortcodes = async (markList) => {
+    const results = await analyzedVideoRepo.findPlatformAndCodeByIdxList(markList);
+  
+    // platform_shortcode = "{platform}_{video_code}"
+    const platform_shortcodes = results.map(r => `${r.platform}_${r.video_code}`);
+  
+    return platform_shortcodes;
+};

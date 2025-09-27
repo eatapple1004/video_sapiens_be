@@ -5,7 +5,8 @@ class SearchResultVO {
       like_count,
       video_view_count,
       profile_image_url,
-      creator_username
+      creator_username,
+      is_marked,
     }) {
       this.platform_shortcode = platform_shortcode
       this.thumbnail_url      = thumbnail_url;
@@ -13,6 +14,7 @@ class SearchResultVO {
       this.video_view_count   = video_view_count;
       this.profile_image_url  = profile_image_url;
       this.creator_username   = creator_username;
+      this.is_marked          = is_marked;
     }
 }
   

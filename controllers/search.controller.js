@@ -1,5 +1,7 @@
-const logger        = require('../utils/logger');
-const searchService = require("../services/search.service");
+const logger          = require('../utils/logger');
+const searchService   = require("../services/search.service");
+const libraryService  = require("../services/library.service");
+const generalService  = require("../services/general.service");
 
 const SearchResultVO   = require('../model/searchResultVO');
 const AnalyzedResultVO = require('../model/analyzedResultVO');
@@ -34,6 +36,19 @@ exports.integreatedSearch = async (req, res) => {
             searchResultVOList,
             analyzedResultVOList
         );
+        
+        // 5.1. 유저 마킹 여부 확인
+        if(req.userEmail) {
+            const userEmail = req.userEmail;
+            // 5.1-1. 유저 mark_list 번호 가져 오기
+            const markList = await libraryService.getUserMarkListService(userEmail);
+            
+            // 5.1-2. 유저 mark_list 기반 platform_shortcode list 만들기
+            const platform_shortcodes = await generalService.getPlatformShortcodes(markList);
+
+            // 5.1-3. 검색 결과와 비교하여 searchResultVO의 is_marked 값 표시
+            
+        }
 
         // 6. 통합 검색 결과 response 반환
         res.status(200).json({

@@ -444,3 +444,39 @@ exports.parseUserInputQuery = async (userInputFilter) => {
     throw err;
   }
 };
+
+
+/**
+ * JSON 데이터 안에서 platform_shortcode를 비교하여 is_marked 값 세팅
+ * @param {Object[]} jsonData - search_result + analyzed_result 구조의 JSON 배열
+ * @param {string[]} platformShortcodes - DB에서 뽑아온 platform_shortcode 리스트
+ * @returns {Object[]} - is_marked 값이 채워진 JSON 배열
+ */
+ exports.markMatchedShortcodes = (jsonData, platformShortcodes) => {
+  if (!Array.isArray(jsonData)) return [];
+
+  return jsonData.map(item => {
+    if (!item.search_result) return item;
+
+    const { platform_shortcode } = item.search_result;
+
+    if (platformShortcodes.includes(platform_shortcode)) {
+      return {
+        ...item,
+        search_result: {
+          ...item.search_result,
+          is_marked: true
+        }
+      };
+    }
+
+    // 매칭 안 되면 false로 지정
+    return {
+      ...item,
+      search_result: {
+        ...item.search_result,
+        is_marked: false
+      }
+    };
+  });
+};

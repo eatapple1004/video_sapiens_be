@@ -18,7 +18,7 @@ exports.authenticate = (req, res, next) => {
         return res.status(401).json({ message: "인증 토큰이 없습니다." });
     }
 
-    logger.info(token);
+    //logger.info(token);
 
     try {
         const decoded = verifyToken(token, DEF_JWT_SECRET_KEY); // ✅ utils/jwt.js의 함수 사용
