@@ -194,6 +194,7 @@ exports.searchReels = async (req, res) => {
         // 5.1. 유저 마킹 여부 확인
         if(req.userEmail) {
             const userEmail = req.userEmail;
+            console.log(userEmail)
             // 5.1-1. 유저 mark_list 번호 가져 오기
             const markList = await libraryService.getUserMarkListService(userEmail);
             

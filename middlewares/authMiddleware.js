@@ -25,11 +25,13 @@ exports.authenticate = (req, res, next) => {
 exports.optionalAuthenticate = (req, res, next) => {
     const token = req.cookies?.authToken;
     if (!token) {
-          return next(); // 토큰 없으면 비로그인 모드
+        logger.info("비로그인")
+        return next(); // 토큰 없으면 비로그인 모드
     }
     try {
+        
         const decoded = verifyToken(token, DEF_JWT_SECRET_KEY);
-        req.user = decoded.username; // 로그인 정보 저장
+        req.userEmail = decoded.username; // 로그인 정보 저장
     } catch (error) {
       logger.warn("유효하지 않은 토큰, 비로그인 모드로 진행");
     }

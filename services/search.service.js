@@ -176,12 +176,13 @@ exports.getSearchResult = async (filterWhere) => {
     const rows = await searchRepo.getSearchResultRepo(filterWhere);
 
     const searchResultVOList = rows.map(row => new SearchResultVO({
-      platform_shortcode: row.platform + '_' + row.shortcode,
-      thumbnail_url:      row.thumbnail_url,
-      like_count:         row.like_count,
-      video_view_count:   row.video_view_count,
-      profile_image_url:  row.profile_pic_url,
-      creator_username:   row.username
+      platform_shortcode : row.platform + '_' + row.shortcode,
+      thumbnail_url :      row.thumbnail_url,
+      like_count :         row.like_count,
+      video_view_count :   row.video_view_count,
+      profile_image_url :  row.profile_pic_url,
+      creator_username :   row.username,
+      is_marked :          false
     }));
 
     return searchResultVOList;

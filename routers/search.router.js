@@ -11,7 +11,7 @@ router.get("/search/tag",        optionalAuthenticate, searchController.tagSearc
 router.get("/tag/list",          searchController.getAllTags);
 
 //진행중
-router.get("/search",            searchController.searchReels);
+router.get("/search",            optionalAuthenticate, searchController.searchReels);
 
 //진행 예정
 //router.get("/search/creator");
