@@ -95,10 +95,23 @@ exports.integreatedSearch = async (req, res) => {
         const analyzedResultVOList = await searchService.getAnalyzedResult(filterWhere);
 
         // 5. 검색 결과 & 분석 결과 데이터 파싱
-        const responsePayload      = await searchService.mergeSearchAndAnalyzedResult(
+        let responsePayload         = await searchService.mergeSearchAndAnalyzedResult(
             searchResultVOList,
             analyzedResultVOList
         );
+        
+        // 5.1. 유저 마킹 여부 확인
+        if(req.userEmail) {
+            const userEmail = req.userEmail;
+            // 5.1-1. 유저 mark_list 번호 가져 오기
+            const markList = await libraryService.getUserMarkListService(userEmail);
+            
+            // 5.1-2. 유저 mark_list 기반 platform_shortcode list 만들기
+            const platform_shortcodes = await generalService.getPlatformShortcodes(markList);
+
+            // 5.1-3. 검색 결과와 비교하여 searchResultVO의 is_marked 값 표시
+            responsePayload = await searchService.markMatchedShortcodes(responsePayload, platform_shortcodes);
+        }
 
         // 6. 필터 검색 결과 response 반환
         res.status(200).json({
@@ -171,12 +184,25 @@ exports.searchReels = async (req, res) => {
 
         // 4. analyzed result 조회
         const analyzedResultVOList = await searchService.getAnalyzedResult(whereClause);
-
-        // 5. reelsData 생성
-        const responsePayload      = await searchService.mergeSearchAndAnalyzedResult(
+        
+        // 5. 검색 결과 & 분석 결과 데이터 파싱
+        let responsePayload         = await searchService.mergeSearchAndAnalyzedResult(
             searchResultVOList,
             analyzedResultVOList
         );
+        
+        // 5.1. 유저 마킹 여부 확인
+        if(req.userEmail) {
+            const userEmail = req.userEmail;
+            // 5.1-1. 유저 mark_list 번호 가져 오기
+            const markList = await libraryService.getUserMarkListService(userEmail);
+            
+            // 5.1-2. 유저 mark_list 기반 platform_shortcode list 만들기
+            const platform_shortcodes = await generalService.getPlatformShortcodes(markList);
+
+            // 5.1-3. 검색 결과와 비교하여 searchResultVO의 is_marked 값 표시
+            responsePayload = await searchService.markMatchedShortcodes(responsePayload, platform_shortcodes);
+        }
 
         // 6. response 반환
         res.status(200).json({
