@@ -1,17 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const searchController = require("../controllers/search.controller");
-const { authenticate } = require("../middlewares/authMiddleware");
+const { authenticate, optionalAuthenticate } = require("../middlewares/authMiddleware");
 
 
 // <완료>
-// 로그인용 검색
-router.get("/search/integrated/login", authenticate, searchController.integreatedSearch);
-router.get("/search/tag/login",        authenticate, searchController.tagSearch);
-
-// 비로그인용 검색
-router.get("/search/integrated", searchController.integreatedSearch);
-router.get("/search/tag",        searchController.tagSearch);
+router.get("/search/integrated", optionalAuthenticate, searchController.integreatedSearch);
+router.get("/search/tag",        optionalAuthenticate, searchController.tagSearch);
 
 router.get("/tag/list",          searchController.getAllTags);
 
