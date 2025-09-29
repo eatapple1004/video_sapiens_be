@@ -116,10 +116,15 @@ exports.markVideo = async (req, res) => {
     // 2. DB 업데이트
     const result = await userService.markingDatabaseUpdate(userEmail, platform, video_code);
 
-    // 3. 성공 response
+    // 3. 마킹여부 판단
+    let is_added = false;
+    if (result.action === "added") { is_added = true; } 
+
+    // 4. 성공 response
     res.status(200).json({
-      success: result,
-      message: '마킹 성공'
+      success: true,
+      message: '마킹 요청 성공',
+      is_marked: is_added
     });
   }
   catch(err) {

@@ -9,8 +9,7 @@ const AnalyzedResultVO = require('../model/analyzedResultVO');
 
 
 /**
- * 라아브러리 유저 체크 컨트롤러
- * @param {string} userInputWord : 사용자 입력 검색어
+ * 라아브러리 유저 마킹 조회
  * @returns {JSON Array} 
  */
 exports.retrieveCheckedMarkedVideos = async (req, res) => {

@@ -98,15 +98,26 @@ exports.searchAnalyzedVideoIdxRepo = async (platform, video_code) => {
 
 exports.markAnalyzedVideoIdxRepo = async (userEmail, analyzedVideoIdx) => {
     const query = `
-        update users
-        set mark_list = mark_list || $1
-        where email = $2
+        UPDATE users
+        SET mark_list = CASE 
+            WHEN $1 = ANY(mark_list) THEN array_remove(mark_list, $1)
+            ELSE mark_list || $1
+        END
+        WHERE email = $2
+        RETURNING
+        mark_list,
+        CASE
+            WHEN $1 = ANY(mark_list) THEN 'removed'
+            ELSE 'added'
+        END AS action;
     `;
-    const values = [[parseInt(analyzedVideoIdx)], userEmail];
+    const values = [String(analyzedVideoIdx), userEmail];
     try{
-        
-        const result = await db.query(query, values);
-        return true;
+        const { rows } = await db.query(query, values);
+        return {
+            mark_list: rows[0]?.mark_list || [],
+            action: rows[0]?.action || null
+        };
     } 
     catch(err) {
         logger.error('[user.repository.markAnalyzedVideoIdxRepo] ERROR: ' + err.stack);
