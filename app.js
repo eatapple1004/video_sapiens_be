@@ -27,7 +27,16 @@ app.use(cors({
             "http://192.168.0.120:8000/",
             "https://175.211.78.242:8000/",
             "https://192.168.1.31:8000/",
-            "https://192.168.0.120:8000/"],  // 허용할 도메인
+            "https://192.168.0.120:8000/",
+            "https://library.videosapiens.ai/",
+            "https://library.videosapiens.ai",
+            "http://library.videosapiens.ai/",
+            "http://library.videosapiens.ai",
+            "https://www.library.videosapiens.ai/",
+            "https://www.library.videosapiens.ai",
+            "http://www.library.videosapiens.ai/",
+            "http://www.library.videosapiens.ai"
+        ],  // 허용할 도메인
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // 허용할 HTTP 메서드
     allowedHeaders: ["Content-Type", "Authorization"], // 허용할 헤더
     credentials: true  // 쿠키 및 인증 정보 허용
