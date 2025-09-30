@@ -77,6 +77,7 @@ exports.loginUser = async (req, res) => {
         secure:   true,       //  HTTPS 환경에서만 전송
         sameSite: "Strict",   //  XSS 공격 방지
         maxAge:   3600000,    //  1시간
+        domain: ".videosapiens.ai"
       });
 
       res.status(200).json({ message: "로그인 성공" });
