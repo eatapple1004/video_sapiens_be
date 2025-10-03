@@ -60,7 +60,7 @@ exports.getSearchResultRepo = async (filterWhere) => {
       JOIN creator c ON p.creator_idx = c.idx
       ${filterWhere}
       ORDER BY p.like_count DESC
-      LIMIT 48;
+      LIMIT 200;
     `;
 
     try {
@@ -103,7 +103,7 @@ exports.getSearchResultRepo = async (filterWhere) => {
       JOIN platform pf ON c.platform = pf.platform_name
       ${filterWhere}
       ORDER BY p.like_count DESC
-      LIMIT 48;
+      LIMIT 200;
     `;
 
     try {

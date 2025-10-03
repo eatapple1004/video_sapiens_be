@@ -134,8 +134,8 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
         let creatorTableEntity;
         switch(platformInfo.platform) {
             case 'youtube' :
-                const channelID = autoInsertData.channel_id;
-                const youtubeChannelData = await libraryService.getYoutubeChannelData(channelID);
+                const uploader_id = autoInsertData.uploader_id;
+                const youtubeChannelData = await libraryService.getYoutubeChannelData(uploader_id);
                 creatorTableEntity = await libraryService.convertYoutubeChannelDataToEntity(youtubeChannelData);
                 console.log(creatorTableEntity);
                 break;
@@ -151,8 +151,8 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
         
 
         // 5. 채널 유무 확인
-        const channelID = autoInsertData.channel_id;
-        let creatorIdxResult = await generalService.selectCreatorByID(channelID);
+        const uploader_id = autoInsertData.uploader_id;
+        let creatorIdxResult = await generalService.selectCreatorByID(uploader_id);
 
         // 6. 채널 Insert or Update
         if (creatorIdxResult !== false) {
@@ -163,10 +163,11 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
             // Insert
             console.log('insert is called');
             const resultIdx = generalService.insertCreatorTable(creatorTableEntity);
+            //console.log(resultIdx);
             creatorIdxResult = resultIdx;
-            console.log(result);
         }
 
+        //console.log(creatorIdxResult);
 
         // 7. post 테이블 유무 확인
         const postIdxResult = await generalService.selectPostIdxByShortcode(postTableEntity.shortcode);
@@ -190,7 +191,7 @@ exports.autoInsertBlankFromLibray = async (req, res) => {
         
     }
     catch(err) {
-        logger.error('[ Search Controller ,integreatedSearch ERROR] :: ' + err.stack);
+        logger.error('[ Libaray Controller ,autoInsertBlankFromLibray ERROR] :: ' + err.stack);
         res.status(500).json({
             success: false,
             message: 'Internal Server Error',

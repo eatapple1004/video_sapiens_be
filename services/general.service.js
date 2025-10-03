@@ -1,6 +1,7 @@
 const logger = require("../utils/logger");
 
 const generalRepo = require("../repositories/general.repository");
+const e = require("express");
 
 
 /**
@@ -50,7 +51,8 @@ exports.insertCreatorTable = async (creatorTableEntity) => {
         }
     
         const result = await generalRepo.insertCreatorTable(creatorTableEntity);
-        return result; // number or false
+        console.log(result);
+;        return result; // number or false
     }
     catch{
         logger.error('[insertCreatorTable] :: ' + err.stack);
@@ -78,7 +80,7 @@ exports.selectPostIdxByShortcode = async (shortcode) => {
         return result;
     }
     catch(err) {
-        logger.error('[Service: selectPostIdxByShortcode] :: ' + err.stack);
+        logger.error('[General Service: selectPostIdxByShortcode] :: ' + err.stack);
         throw err;
     }
 }

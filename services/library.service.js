@@ -241,18 +241,20 @@ exports.getYoutubeChannelData = async (channerID) => {
     try{
         // 프록시 서버 주소 (예시: process.env.PROXY_SERVER_URL 환경변수)
         const proxyUrl = process.env.DEF_PROXY_DEV_URL || 'http://localhost:3000';
-    
+        
+        console.log("채널 ID :: " + channerID);
+
         // 실제 요청 (예시로 canonicalUrl 전달)
         const response = await axios.post(`${proxyUrl}/youtube/channel`, {
-            source: channerID
+            channelHandle: channerID
         });
 
         return response.data;
     }
     catch(err) {
-        logger.error('[getYoutubeChannelData] error:', error.message);
+        logger.error('[getYoutubeChannelData] error:', err.message);
         // 에러를 상위 컨트롤러까지 던짐
-        throw error;
+        throw err;
     }
 }
 
@@ -352,7 +354,7 @@ exports.getYoutubeChannelData = async (channerID) => {
       owner_username: uploader,
       typename: 'youtube',
       post_id: channel_id, // 또는 video id를 따로 추가해도 됨
-      short_code: video_id,     // YouTube에는 shortcode 없음
+      shortcode: video_id,     // YouTube에는 shortcode 없음
       width: null,
       height: null,
       is_video: true,
