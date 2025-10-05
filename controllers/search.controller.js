@@ -95,7 +95,7 @@ exports.integreatedSearch = async (req, res) => {
         const analyzedResultVOList = await searchService.getAnalyzedResult(filterWhere);
 
         // 5. 검색 결과 & 분석 결과 데이터 파싱
-        let responsePayload         = await searchService.mergeSearchAndAnalyzedResult(
+        let responsePayload        = await searchService.mergeSearchAndAnalyzedResult(
             searchResultVOList,
             analyzedResultVOList
         );
@@ -178,8 +178,6 @@ exports.searchReels = async (req, res) => {
         
         // 2. where 절 생성
         const whereClause          = await searchService.makeUserInputWhereClause(parsedData);
-        
-        console.log(whereClause);
 
         // 3. search result 조회
         const searchResultVOList   = await searchService.getSearchResult(whereClause);
@@ -188,7 +186,7 @@ exports.searchReels = async (req, res) => {
         const analyzedResultVOList = await searchService.getAnalyzedResult(whereClause);
         
         // 5. 검색 결과 & 분석 결과 데이터 파싱
-        let responsePayload         = await searchService.mergeSearchAndAnalyzedResult(
+        let responsePayload        = await searchService.mergeSearchAndAnalyzedResult(
             searchResultVOList,
             analyzedResultVOList
         );

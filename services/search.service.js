@@ -344,6 +344,11 @@ exports.parseUserInputQuery = async (userInputFilter) => {
         //parsedFilterData.query = value.trim();
         parsedFilterData.query = parseQueryString(value.trim());
 
+      } else if (key === 'lastShortCode') {
+        const sc = String(value).trim();
+        if (sc) {
+          parsedFilterData.cursor = { shortcode: sc };
+        }
       } else {
         // 기타 문자열 필터
         parsedFilterData[key] = value.trim();
@@ -510,7 +515,28 @@ function parseQueryString(rawQuery) {
       }
     }
 
-    // ✅ 4. 최종 WHERE 절 조립
+    // ✅ 4) 커서 기반(next page): lastShortCode만 사용
+    // 정렬: ORDER BY p.like_count DESC, p.shortcode DESC  (필수!)
+    if (parsedFilter.cursor && parsedFilter.cursor.shortcode) {
+      const sc = parsedFilter.cursor.shortcode.trim();
+      if (sc) {
+        const scLit = escapeLiteral(sc);
+        const curLike = `(SELECT p2.like_count FROM post p2 WHERE p2.shortcode = ${scLit} LIMIT 1)`;
+
+        // 커서가 존재하지 않으면 필터 무시(TRUE)하도록 처리 (잘못된 커서에도 안전)
+        conditions.push(`(
+          CASE
+            WHEN ${curLike} IS NULL THEN TRUE
+            ELSE (
+              p.like_count < (${curLike})
+              OR (p.like_count = (${curLike}) AND p.shortcode < ${scLit})
+            )
+          END
+        )`);
+      }
+    }
+
+    // ✅ 5. 최종 WHERE 절 조립
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
     return whereClause;
 

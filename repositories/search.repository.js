@@ -73,7 +73,7 @@ exports.getSearchResultRepo = async (filterWhere) => {
     }
   };
   
-  exports.getAnalyzedResultRepo = async (filterWhere) => {
+exports.getAnalyzedResultRepo = async (filterWhere) => {
     const query = `
       SELECT
         a.platform,
@@ -103,7 +103,7 @@ exports.getSearchResultRepo = async (filterWhere) => {
       JOIN platform pf ON c.platform = pf.platform_name
       ${filterWhere}
       ORDER BY p.like_count DESC
-      LIMIT 200;
+      LIMIT 50;
     `;
 
     try {
@@ -114,7 +114,7 @@ exports.getSearchResultRepo = async (filterWhere) => {
       logger.error('[search.repository.getAnalyzedResultRepo] ERROR: ' + err.stack);
       throw err;
     }
-  };
+};
   
 
 
