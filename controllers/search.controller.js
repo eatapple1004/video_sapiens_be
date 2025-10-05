@@ -179,6 +179,8 @@ exports.searchReels = async (req, res) => {
         // 2. where 절 생성
         const whereClause          = await searchService.makeUserInputWhereClause(parsedData);
         
+        console.log(whereClause);
+
         // 3. search result 조회
         const searchResultVOList   = await searchService.getSearchResult(whereClause);
 

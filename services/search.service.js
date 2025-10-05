@@ -289,7 +289,7 @@ exports.getSearchResult = async (filterWhere) => {
  * 플랫폼별 태그 목록 조회 서비스
  * @returns {Object} { topicTags, genreTags, formatTags }
  */
- exports.getAllTagLists = async () => {
+exports.getAllTagLists = async () => {
   try {
     const tagLists = await searchRepo.getAllTags();
     return tagLists;
@@ -341,7 +341,8 @@ exports.parseUserInputQuery = async (userInputFilter) => {
 
       } else if (key === 'query') {
         // 일반 검색어
-        parsedFilterData.query = value.trim();
+        //parsedFilterData.query = value.trim();
+        parsedFilterData.query = parseQueryString(value.trim());
 
       } else {
         // 기타 문자열 필터
@@ -355,6 +356,54 @@ exports.parseUserInputQuery = async (userInputFilter) => {
     throw err;
   }
 };
+
+/**
+ * 사용자 검색어 문자열 파싱
+ * - 공백 → 기본 OR
+ * - -단어 → NOT 검색
+ * - "구문" → 정확 구문 검색
+ * @param {string} rawQuery 
+ * @returns {{ include: string[], exclude: string[] }}
+ */
+function parseQueryString(rawQuery) {
+  if (!rawQuery || typeof rawQuery !== 'string') {
+    return { include: [], exclude: [] };
+  }
+
+  const phrases = [];
+  const phraseRegex = /"([^"]+)"/g;
+  let m;
+  let cleaned = rawQuery;
+
+  // 큰따옴표 처리
+  while ((m = phraseRegex.exec(rawQuery)) !== null) {
+    phrases.push(m[1].trim());
+  }
+  cleaned = cleaned.replace(phraseRegex, ' ');
+
+  // 토큰 분리
+  const tokens = cleaned
+    .split(/\s+/)
+    .map(v => v.trim())
+    .filter(Boolean);
+
+  const include = [];
+  const exclude = [];
+
+  tokens.forEach(tok => {
+    if (tok.startsWith('-') && tok.length > 1) {
+      exclude.push(tok.substring(1));   // -단어 → 제외
+    } else if (tok.toUpperCase() !== 'OR') {
+      include.push(tok);                // 일반 단어 → 포함
+    }
+  });
+
+  // 최종 반환
+  return {
+    include: [...include, ...phrases],
+    exclude
+  };
+}
 
 
 /**
@@ -385,16 +434,16 @@ exports.parseUserInputQuery = async (userInputFilter) => {
     const arrayFields = ['platform', 'topic', 'genre', 'format'];
     for (const field of arrayFields) {
       const value = parsedFilter[field];
+      if (!value) continue;
+
       if (field === 'platform') {
         if (Array.isArray(value)) {
-            const platformConditions = value.map(v => `a.platform = '${v}'`);
-            conditions.push(`(${platformConditions.join(' OR ')})`);
-        } 
-        else {
-            conditions.push(`a.platform = '${value}'`);
+          const platformConditions = value.map(v => `a.platform = '${v}'`);
+          conditions.push(`(${platformConditions.join(' OR ')})`);
+        } else {
+          conditions.push(`a.platform = '${value}'`);
         }
-      }
-      else if (Array.isArray(value) && value.length > 0 && value.every(v => typeof v === 'string')) {
+      } else if (Array.isArray(value) && value.length > 0 && value.every(v => typeof v === 'string')) {
         const arrayString = escapeArray(value);
         conditions.push(`a.${field}_tag @> ARRAY[${arrayString}]::text[]`);
       }
@@ -403,7 +452,6 @@ exports.parseUserInputQuery = async (userInputFilter) => {
     // ✅ 2. views, likes 유효성 검사 및 범위 처리
     const rangeFields = ['views', 'likes'];
     for (const field of rangeFields) {
-
       const range = parsedFilter[field];
       if (range && typeof range === 'object') {
         const min = parseInt(range.min);
@@ -412,28 +460,54 @@ exports.parseUserInputQuery = async (userInputFilter) => {
         if (field === 'views') {
           if (!isNaN(min)) conditions.push(`p.video_view_count >= ${min}`);
           if (!isNaN(max)) conditions.push(`p.video_view_count <= ${max}`);
-        }
-        else if (field === 'likes') {
+        } else if (field === 'likes') {
           if (!isNaN(min)) conditions.push(`p.like_count >= ${min}`);
           if (!isNaN(max)) conditions.push(`p.like_count <= ${max}`);
         }
       }
     }
 
-    // ✅ 3. query 통합 검색 (a: analyzed_video, p: post 가정)
-    if (typeof parsedFilter.query === 'string' && parsedFilter.query.trim() !== '') {
-      const keyword = parsedFilter.query.replace(/'/g, "''").trim();
-      conditions.push(`(
-        EXISTS (SELECT 1 FROM unnest(a.topic_tag) AS tag WHERE tag ILIKE '%${keyword}%') OR
-        EXISTS (SELECT 1 FROM unnest(a.genre_tag) AS tag WHERE tag ILIKE '%${keyword}%') OR
-        EXISTS (SELECT 1 FROM unnest(a.format_tag) AS tag WHERE tag ILIKE '%${keyword}%') OR
-        a.title ILIKE '%${keyword}%' OR
-        a.summary ILIKE '%${keyword}%' OR
-        a.visual_hook_summary ILIKE '%${keyword}%' OR
-        a.sound_hook_summary ILIKE '%${keyword}%' OR
-        a.text_hook_summary ILIKE '%${keyword}%' OR
-        p.caption ILIKE '%${keyword}%'
-      )`);
+    // ✅ 3. query 통합 검색 (include OR, exclude NOT)
+    if (parsedFilter.query && typeof parsedFilter.query === 'object') {
+      const { include = [], exclude = [] } = parsedFilter.query;
+
+      // 🔎 포함 검색 (OR)
+      if (include.length > 0) {
+        const includeConds = include.map(kwRaw => {
+          const keyword = kwRaw.replace(/'/g, "''").trim();
+          return `(
+            EXISTS (SELECT 1 FROM unnest(a.topic_tag) AS tag WHERE tag ILIKE '%${keyword}%') OR
+            EXISTS (SELECT 1 FROM unnest(a.genre_tag) AS tag WHERE tag ILIKE '%${keyword}%') OR
+            EXISTS (SELECT 1 FROM unnest(a.format_tag) AS tag WHERE tag ILIKE '%${keyword}%') OR
+            a.title ILIKE '%${keyword}%' OR
+            a.summary ILIKE '%${keyword}%' OR
+            a.visual_hook_summary ILIKE '%${keyword}%' OR
+            a.sound_hook_summary ILIKE '%${keyword}%' OR
+            a.text_hook_summary ILIKE '%${keyword}%' OR
+            p.caption ILIKE '%${keyword}%'
+          )`;
+        });
+        conditions.push(`(${includeConds.join(' OR ')})`);
+      }
+
+      // 🔎 제외 검색 (NOT)
+      if (exclude.length > 0) {
+        const excludeConds = exclude.map(kwRaw => {
+          const keyword = kwRaw.replace(/'/g, "''").trim();
+          return `NOT (
+            EXISTS (SELECT 1 FROM unnest(a.topic_tag) AS tag WHERE tag ILIKE '%${keyword}%') OR
+            EXISTS (SELECT 1 FROM unnest(a.genre_tag) AS tag WHERE tag ILIKE '%${keyword}%') OR
+            EXISTS (SELECT 1 FROM unnest(a.format_tag) AS tag WHERE tag ILIKE '%${keyword}%') OR
+            a.title ILIKE '%${keyword}%' OR
+            a.summary ILIKE '%${keyword}%' OR
+            a.visual_hook_summary ILIKE '%${keyword}%' OR
+            a.sound_hook_summary ILIKE '%${keyword}%' OR
+            a.text_hook_summary ILIKE '%${keyword}%' OR
+            p.caption ILIKE '%${keyword}%'
+          )`;
+        });
+        conditions.push(`(${excludeConds.join(' AND ')})`);
+      }
     }
 
     // ✅ 4. 최종 WHERE 절 조립
