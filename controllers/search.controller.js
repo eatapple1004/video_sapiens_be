@@ -205,11 +205,16 @@ exports.searchReels = async (req, res) => {
             responsePayload = await searchService.markMatchedShortcodes(responsePayload, platform_shortcodes);
         }
 
+        // 6. is_last 데이터 결정
+        let isLast = false;
+        if(responsePayload.length < 50) isLast = true;
+
         // 6. response 반환
         res.status(200).json({
             success: true,
             message: '검색 조회 성공',
-            data: responsePayload
+            data: responsePayload,
+            is_list: isLast
         });
     }
     catch(err) {

@@ -345,9 +345,16 @@ exports.parseUserInputQuery = async (userInputFilter) => {
         parsedFilterData.query = parseQueryString(value.trim());
 
       } else if (key === 'lastShortCode') {
-        const sc = String(value).trim();
-        if (sc) {
-          parsedFilterData.cursor = { shortcode: sc };
+        const raw = String(value).trim();
+        if (raw) {
+          // "{platform}_{shortcode}" 형태면 '_' 뒤만 사용, 없으면 전체 사용
+          const us = raw.indexOf('_');
+          const shortcode = (us > -1 ? raw.slice(us + 1) : raw).trim();
+
+          if (shortcode) {
+            parsedFilterData.cursor = { shortcode };
+            //console.log(parsedFilterData.cursor);  // { shortcode: 'rrDZGzFRa8o' }
+          }
         }
       } else {
         // 기타 문자열 필터
@@ -517,22 +524,18 @@ function parseQueryString(rawQuery) {
 
     // ✅ 4) 커서 기반(next page): lastShortCode만 사용
     // 정렬: ORDER BY p.like_count DESC, p.shortcode DESC  (필수!)
-    if (parsedFilter.cursor && parsedFilter.cursor.shortcode) {
+    // ✅ 커서 기반(next page): lastShortCode만 사용, like_count 기준으로 엄격히 작은 것만
+    if (parsedFilter.cursor?.shortcode) {
       const sc = parsedFilter.cursor.shortcode.trim();
       if (sc) {
         const scLit = escapeLiteral(sc);
+
+        // 해당 숏츠코드의 like_count 조회
         const curLike = `(SELECT p2.like_count FROM post p2 WHERE p2.shortcode = ${scLit} LIMIT 1)`;
 
-        // 커서가 존재하지 않으면 필터 무시(TRUE)하도록 처리 (잘못된 커서에도 안전)
-        conditions.push(`(
-          CASE
-            WHEN ${curLike} IS NULL THEN TRUE
-            ELSE (
-              p.like_count < (${curLike})
-              OR (p.like_count = (${curLike}) AND p.shortcode < ${scLit})
-            )
-          END
-        )`);
+        // 커서가 유효하지 않더라도 목록이 비지 않도록: NULL이면 조건 무시
+        // (curLike가 NULL → TRUE, 아니면 p.like_count < curLike)
+        conditions.push(`( (${curLike}) IS NULL OR p.like_count < (${curLike}) )`);
       }
     }
 
