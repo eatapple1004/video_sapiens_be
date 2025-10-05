@@ -124,3 +124,23 @@ exports.markAnalyzedVideoIdxRepo = async (userEmail, analyzedVideoIdx) => {
         return false;
     }
 }
+
+
+
+exports.addNewUserEmailRepo = async (email) => {
+    try {
+        const query = `
+            INSERT INTO users (email) 
+            VALUES ($1) 
+            RETURNING idx;
+        `;
+        const values = [email];
+
+        const result = await db.query(query, values);
+        logger.info(`✅ 회원가입 성공 (User ID: ${result.rows[0].id})`);
+    } catch (error) {
+        logger.error("❌ 회원가입 오류:", error);
+    } finally {
+        
+    }
+}

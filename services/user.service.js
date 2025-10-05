@@ -155,7 +155,7 @@ exports.loginUser = async (email, plainPassword) => {
 exports.parseMarkRequest = async (req) => {
   try {
     // 1. userEmail
-    const userEmail = req.userEmail;
+    const userEmail = req.userEmail || req.body.userEmail;
     const platform_shortcode = req.body.platform_shortcode;
 
     // 2. platform_shortcode 데이터 확인
@@ -224,3 +224,19 @@ async function markAnalyzedVideoIdxService(userEmail, analyzedVideoIdx) {
 }
 
 
+exports.addNewUserEmailService = async (email) => {
+  try {
+    const exists = await userRepo.isUserExists(email);
+    if (exists) {
+      throw new Error("이미 가입된 이메일입니다.");
+    }
+
+    console.log("email : " + email)
+
+    await userRepo.addNewUserEmailRepo(email);
+    
+  } catch (err) {
+    logger.error("[ User Service, registerUser, Email :: " + email  + " ERROR :: " + err.stack);
+    throw err;
+  }
+};

@@ -15,6 +15,9 @@ router.post("/user/login",    userController.loginUser);
 router.get("/username",   authenticate, userController.getTokenUsername);
 
 // 유저 마킹 기능
-router.post("/user/mark", authenticate, userController.markVideo);
+router.post("/user/mark", userController.markVideo);
+
+// Add New User Information
+router.post("/user/addemail", userController.addNewUserEmail);
 
 module.exports = router;

@@ -137,3 +137,25 @@ exports.markVideo = async (req, res) => {
     });
   }
 }
+
+
+exports.addNewUserEmail = async (req, res) => {
+  const { email } = req.body.userEmail;
+  try {
+    await userService.addNewUserEmailService(email);
+    //res.status(201).json({ message: "회원가입 성공" });
+    res.status(201).json({
+      success: true,
+      message: "회원가입 성공",
+      data: ""
+    });
+  }
+  catch(err) {
+    logger.error("[ User Controller, addNewUserEmail, Error :: " + err.stack + " ]")
+    res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+      error: err.message
+    });
+  }
+}
