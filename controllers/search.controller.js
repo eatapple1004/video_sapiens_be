@@ -175,46 +175,69 @@ exports.searchReels = async (req, res) => {
     try {
         // 1. req.query 데이터 파싱
         const parsedData           = await searchService.parseUserInputQuery(req.query);
+        console.log("--- 실제로 받은 데이터 파싱 결과 ---")
+        console.log(parsedData);
         
-        // 2. where 절 생성
+        // 2) 추천/오타 교정 (include 토큰 대상)
+        let suggestions = null;
+        let autocorrectedTo = null;
+        const includeTokens = parsedData?.query?.include || [];
+
+        if (includeTokens.length > 0) {
+            const { suggestions: sug, corrected } =
+                await searchService.suggestAndMaybeAutocorrect(includeTokens, {
+                    autoThreshold: 0.80,   // 도메인에 맞게 튜닝
+                    limitPerToken: 8
+                });
+
+            suggestions = sug;
+            if (corrected) {
+                parsedData.query.include = corrected;
+                autocorrectedTo = corrected;
+            }
+        }
+        console.log("--- 유사도 및 관련 단어 파싱후 결과 ---")
+        console.log(parsedData)
+        
+        // 3. where 절 생성
         const whereClause          = await searchService.makeUserInputWhereClause(parsedData);
 
-        // 3. search result 조회
+        // 4. search result 조회
         const searchResultVOList   = await searchService.getSearchResult(whereClause);
 
-        // 4. analyzed result 조회
+        // 5. analyzed result 조회
         const analyzedResultVOList = await searchService.getAnalyzedResult(whereClause);
         
-        // 5. 검색 결과 & 분석 결과 데이터 파싱
+        // 6. 검색 결과 & 분석 결과 데이터 파싱
         let responsePayload        = await searchService.mergeSearchAndAnalyzedResult(
             searchResultVOList,
             analyzedResultVOList
         );
         
-        // 5.1. 유저 마킹 여부 확인
+        // 6.1. 유저 마킹 여부 확인
         if(req.userEmail) {
             const userEmail = req.userEmail;
             console.log(userEmail)
-            // 5.1-1. 유저 mark_list 번호 가져 오기
+            // 6.1-1. 유저 mark_list 번호 가져 오기
             const markList = await libraryService.getUserMarkListService(userEmail);
             
-            // 5.1-2. 유저 mark_list 기반 platform_shortcode list 만들기
+            // 6.1-2. 유저 mark_list 기반 platform_shortcode list 만들기
             const platform_shortcodes = await generalService.getPlatformShortcodes(markList);
 
-            // 5.1-3. 검색 결과와 비교하여 searchResultVO의 is_marked 값 표시
+            // 6.1-3. 검색 결과와 비교하여 searchResultVO의 is_marked 값 표시
             responsePayload = await searchService.markMatchedShortcodes(responsePayload, platform_shortcodes);
         }
 
-        // 6. is_last 데이터 결정
+        // 7. is_last 데이터 결정
         let isLast = false;
         if(responsePayload.length < 50) isLast = true;
 
-        // 6. response 반환
+        // 8. response 반환
         res.status(200).json({
             success: true,
             message: '검색 조회 성공',
             data: responsePayload,
-            is_list: isLast
+            is_last: isLast
         });
     }
     catch(err) {

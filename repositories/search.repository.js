@@ -167,3 +167,46 @@ exports.getAllTags = async () => {
       throw err;
   }
 };
+
+
+// search.repository.js
+exports.findSimilarCandidatesBatch = async (tokens, limitPerToken = 8) => {
+  if (!Array.isArray(tokens) || tokens.length === 0) return {};
+
+  const sql = `
+    WITH toks AS (
+      SELECT t.orig,
+             normalize_token(t.orig) AS key
+      FROM UNNEST($1::text[]) WITH ORDINALITY AS t(orig, ord)
+    ),
+    ranked AS (
+      SELECT
+        tk.orig,
+        l.display AS word,
+        l.key,
+        similarity(l.key, tk.key) AS trigram_sim,
+        l.freq,
+        ROW_NUMBER() OVER (
+          PARTITION BY tk.orig
+          ORDER BY similarity(l.key, tk.key) DESC, l.freq DESC, l.display ASC
+        ) AS rn
+      FROM toks tk
+      JOIN search_lexicon l ON l.key % tk.key
+      LEFT JOIN search_stopword s ON s.key = l.key
+      WHERE s.key IS NULL
+    )
+    SELECT orig, word, key, trigram_sim, freq
+    FROM ranked
+    WHERE rn <= $2
+    ORDER BY orig, rn;
+  `;
+  const { rows } = await pool.query(sql, [tokens, limitPerToken]);
+
+  // map으로 변환
+  const out = {};
+  for (const r of rows) {
+    if (!out[r.orig]) out[r.orig] = [];
+    out[r.orig].push(r);
+  }
+  return out; // { "iphon":[{word,...},...], "camra":[...], ... }
+};

@@ -584,3 +584,93 @@ function parseQueryString(rawQuery) {
     };
   });
 };
+
+
+
+
+/** Jaro/Winkler 구현 */
+function jaro(s, t) {
+  if (s === t) return 1;
+  const sl = s?.length || 0, tl = t?.length || 0;
+  if (!sl || !tl) return 0;
+  const matchDist = Math.floor(Math.max(sl, tl) / 2) - 1;
+  const sMatch = Array(sl).fill(false), tMatch = Array(tl).fill(false);
+  let matches = 0, transpositions = 0;
+
+  for (let i = 0; i < sl; i++) {
+    const start = Math.max(0, i - matchDist);
+    const end = Math.min(i + matchDist + 1, tl);
+    for (let j = start; j < end; j++) {
+      if (tMatch[j] || s[i] !== t[j]) continue;
+      sMatch[i] = tMatch[j] = true; matches++; break;
+    }
+  }
+  if (!matches) return 0;
+
+  for (let i = 0, k = 0; i < sl; i++) {
+    if (!sMatch[i]) continue;
+    while (!tMatch[k]) k++;
+    if (s[i] !== t[k]) transpositions++;
+    k++;
+  }
+  transpositions /= 2;
+  return (matches/sl + matches/tl + (matches - transpositions)/matches) / 3;
+}
+function jaroWinkler(s, t, p = 0.1, maxPrefix = 4) {
+  s = (s || '').toLowerCase();
+  t = (t || '').toLowerCase();
+  const j = jaro(s, t);
+  let l = 0;
+  while (l < Math.min(maxPrefix, s.length, t.length) && s[l] === t[l]) l++;
+  return j + l * p * (1 - j);
+}
+
+function rerankByJW(cands, token) {
+  return cands
+    .map(c => {
+      const jw = jaroWinkler(c.word, token);
+      const score = 0.7 * (c.trigram_sim || 0) + 0.3 * jw; // 가중치 튜닝 가능
+      return { ...c, jw, score };
+    })
+    .sort((a, b) => b.score - a.score);
+}
+
+/**
+ * include 토큰들에 대해 후보 제안 + 자동보정
+ * @param {string[]} includeTokens
+ * @param {{autoThreshold?: number, limitPerToken?: number}} opts
+ */
+exports.suggestAndMaybeAutocorrect = async (includeTokens, opts = {}) => {
+  const { autoThreshold = 0.90, limitPerToken = 8 } = opts;
+
+  // 1) 후보 일괄 조회 (trgm)
+  const candMap = await searchRepo.findSimilarCandidatesBatch(includeTokens, limitPerToken);
+
+  // 2) 재랭킹 + 결과 구성
+  const suggestions = {};
+  const corrected = [];
+  let anyChanged = false;
+
+  for (const tok of includeTokens) {
+    const list = candMap[tok] || [];
+    if (tok.length < 2 || list.length === 0) {
+      corrected.push(tok);
+      continue;
+    }
+    const ranked = rerankByJW(list, tok);
+
+    // 추천 후보 상위 3개만
+    suggestions[tok] = ranked.slice(0, 3).map(r => ({ word: r.word, jw: r.jw, trigram: r.trigram_sim }));
+
+    // 자동 보정 판단
+    const top = ranked[0];
+    if (top.jw >= autoThreshold) {
+      corrected.push(top.word);
+      if (top.word !== tok) anyChanged = true;
+    } else {
+      corrected.push(tok);
+    }
+  }
+
+  return { suggestions, corrected: anyChanged ? corrected : null };
+};
