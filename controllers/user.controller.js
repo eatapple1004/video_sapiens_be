@@ -140,8 +140,9 @@ exports.markVideo = async (req, res) => {
 
 
 exports.addNewUserEmail = async (req, res) => {
-  const { email } = req.body.userEmail;
+  const email = req.body.userEmail;
   try {
+    console.log(email)
     await userService.addNewUserEmailService(email);
     //res.status(201).json({ message: "회원가입 성공" });
     res.status(201).json({
@@ -152,7 +153,7 @@ exports.addNewUserEmail = async (req, res) => {
   }
   catch(err) {
     logger.error("[ User Controller, addNewUserEmail, Error :: " + err.stack + " ]")
-    res.status(500).json({
+    res.status(409).json({
       success: false,
       message: 'Internal Server Error',
       error: err.message
