@@ -131,6 +131,7 @@ exports.getMarkListByUserEmail = async (userEmail) => {
  * @returns {Promise<string[]>} - platform_shortcode 리스트
  */
  exports.getPlatformShortcodes = async (markList) => {
+    console.log(markList)
     const results = await generalRepo.findPlatformAndCodeByIdxList(markList);
   
     // platform_shortcode = "{platform}_{video_code}"

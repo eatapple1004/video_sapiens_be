@@ -215,12 +215,12 @@ exports.searchReels = async (req, res) => {
         );
         
         // 6.1. 유저 마킹 여부 확인
-        const userEmail = req.body.userEmail || req.userEmail;
+        const userEmail = req.query.userEmail || req.userEmail;
         if(userEmail) {
             console.log(userEmail)
             // 6.1-1. 유저 mark_list 번호 가져 오기
             const markList = await libraryService.getUserMarkListService(userEmail);
-            
+            //console.log(markList)
             // 6.1-2. 유저 mark_list 기반 platform_shortcode list 만들기
             const platform_shortcodes = await generalService.getPlatformShortcodes(markList);
 

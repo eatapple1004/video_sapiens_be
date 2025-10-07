@@ -207,10 +207,13 @@ exports.updatePostTable = async (creatorInfo) => {
  * @returns {Promise<{ platform: string, video_code: string }[]>}
  */
  exports.findPlatformAndCodeByIdxList = async (idxList) => {
+    //console.log(idxList)
     if (!idxList || idxList.length === 0) {
         return [];
     }
-  
+    
+    console.log(idxList)
+
     const query = `
         SELECT platform, video_code
         FROM analyzed_video

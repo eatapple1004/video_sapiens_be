@@ -125,7 +125,7 @@ exports.markVideo = async (req, res) => {
     res.status(200).json({
       success: true,
       message: '마킹 요청 성공',
-      is_marked: is_added
+      is_marked: !is_added
     });
   }
   catch(err) {
