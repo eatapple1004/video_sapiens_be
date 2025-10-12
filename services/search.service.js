@@ -761,3 +761,42 @@ exports.suggestAndMaybeAutocorrect = async (includeTokens, opts = {}) => {
     throw err;
   }
 };
+
+/**
+ * 🔍 추천 및 오타 교정 처리 로직
+ * 
+ * @param {Object} parsedData - 파싱된 검색 데이터 (query.include 포함)
+ * @returns {Promise<{ suggestions: any, autocorrectedTo: string[] | null, parsedData: Object }>}
+ * 
+ * includeTokens(검색어 토큰)들을 기반으로 후보 제안 및 자동 교정 수행.
+ */
+ exports.handleAutoCorrection = async (parsedData) => {
+  try {
+    let suggestions = null;
+    let autocorrectedTo = null;
+
+    // include 배열 추출
+    const includeTokens = parsedData?.query?.include || [];
+
+    if (includeTokens.length > 0) {
+      const { suggestions: sug, corrected } =
+        await exports.suggestAndMaybeAutocorrect(includeTokens, {
+          autoThreshold: 0.80,   // 도메인에 맞게 튜닝
+          limitPerToken: 8
+        });
+
+      suggestions = sug;
+      if (corrected) {
+        // 교정된 결과를 parsedData에 반영
+        parsedData.query.include = corrected;
+        autocorrectedTo = corrected;
+      }
+    }
+
+    return { suggestions, autocorrectedTo, parsedData };
+
+  } catch (err) {
+    logger.error(`[handleAutoCorrection ERROR] :: ${err.stack}`);
+    throw err;
+  }
+};

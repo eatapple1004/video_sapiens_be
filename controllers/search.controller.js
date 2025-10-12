@@ -175,33 +175,14 @@ exports.searchReels = async (req, res) => {
     try {
         // 1. req.query 데이터 파싱
         const parsedData           = await searchService.parseUserInputQuery(req.query);
-        console.log("--- 실제로 받은 데이터 파싱 결과 ---")
-        console.log(parsedData);
         
-        // 2) 추천/오타 교정 (include 토큰 대상)
-        let suggestions = null;
-        let autocorrectedTo = null;
-        const includeTokens = parsedData?.query?.include || [];
-
-        if (includeTokens.length > 0) {
-            const { suggestions: sug, corrected } =
-                await searchService.suggestAndMaybeAutocorrect(includeTokens, {
-                    autoThreshold: 0.80,   // 도메인에 맞게 튜닝
-                    limitPerToken: 8
-                });
-
-            suggestions = sug;
-            if (corrected) {
-                parsedData.query.include = corrected;
-                autocorrectedTo = corrected;
-            }
-        }
-        console.log("--- 유사도 및 관련 단어 파싱후 결과 ---")
-        console.log(parsedData)
+        // 2 추천/오타 교정 (include 토큰 대상)
+        const correctionResult = await searchService.handleAutoCorrection(parsedData);
+        const { suggestions, autocorrectedTo, parsedData: correctedData } = correctionResult;
         
         // 3. where 절 생성
-        const whereClause          = await searchService.makeUserInputWhereClause(parsedData);
-        console.log(whereClause)
+        const whereClause          = await searchService.makeUserInputWhereClause(correctedData);
+        
         // 4. search result 조회
         const searchResultVOList   = await searchService.getSearchResult(whereClause);
 
