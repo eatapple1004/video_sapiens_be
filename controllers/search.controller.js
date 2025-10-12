@@ -201,7 +201,7 @@ exports.searchReels = async (req, res) => {
         
         // 3. where 절 생성
         const whereClause          = await searchService.makeUserInputWhereClause(parsedData);
-
+        console.log(whereClause)
         // 4. search result 조회
         const searchResultVOList   = await searchService.getSearchResult(whereClause);
 
@@ -220,7 +220,7 @@ exports.searchReels = async (req, res) => {
             console.log(userEmail)
             // 6.1-1. 유저 mark_list 번호 가져 오기
             const markList = await libraryService.getUserMarkListService(userEmail);
-            //console.log(markList)
+
             // 6.1-2. 유저 mark_list 기반 platform_shortcode list 만들기
             const platform_shortcodes = await generalService.getPlatformShortcodes(markList);
 
@@ -228,15 +228,19 @@ exports.searchReels = async (req, res) => {
             responsePayload = await searchService.markMatchedShortcodes(responsePayload, platform_shortcodes);
         }
 
-        // 7. is_last 데이터 결정
+        // 7. 태그 리스트 추출
+        const tagList = searchService.extractTagListFromResponse(responsePayload);
+
+        // 8. is_last 데이터 결정
         let isLast = false;
         if(responsePayload.length < 50) isLast = true;
 
-        // 8. response 반환
+        // 9. response 반환
         res.status(200).json({
             success: true,
             message: '검색 조회 성공',
             data: responsePayload,
+            tags: tagList,
             is_last: isLast
         });
     }

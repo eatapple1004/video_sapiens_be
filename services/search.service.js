@@ -138,10 +138,20 @@ exports.makeIntegratedWhereClause = async (userInputIntegarted) => {
 
     for (const [key, value] of Object.entries(parsedFilterData)) {
       if (key === 'views') {
-        conditions.push(`p.video_view_count >= ${value}`);
+        // 🔹 조회수 10,000,000 이상일 때는 상한 조건 없이 최소값만
+        if (Number(value) >= 10000000) {
+          conditions.push(`p.video_view_count >= ${value}`);
+        } else {
+          conditions.push(`p.video_view_count BETWEEN ${value} AND 10000000`);
+        }
       } 
       else if (key === 'likes') {
-        conditions.push(`p.like_count >= ${value}`);
+        // 🔹 좋아요 10,000,000 이상일 때는 상한 조건 없이 최소값만
+        if (Number(value) >= 10000000) {
+          conditions.push(`p.like_count >= ${value}`);
+        } else {
+          conditions.push(`p.like_count BETWEEN ${value} AND 10000000`);
+        }
       } 
       else if (key === 'platform') {
         if (Array.isArray(value)) {
@@ -442,22 +452,36 @@ function parseQueryString(rawQuery) {
         .join(', ');
     };
 
-    // ✅ 1. 배열 필드 유효성 검사 및 where절 생성
+    // ✅ 1. 배열 필드 유효성 검사 및 WHERE 절 생성
     const arrayFields = ['platform', 'topic', 'genre', 'format'];
+
     for (const field of arrayFields) {
       const value = parsedFilter[field];
-      if (!value) continue;
 
       if (field === 'platform') {
-        if (Array.isArray(value)) {
+        // 항상 포함되는 필드
+        if (Array.isArray(value) && value.length > 0) {
           const platformConditions = value.map(v => `a.platform = '${v}'`);
           conditions.push(`(${platformConditions.join(' OR ')})`);
+        } else if (typeof value === 'string' && value.trim() !== '') {
+          conditions.push(`a.platform = '${value.trim()}'`);
         } else {
-          conditions.push(`a.platform = '${value}'`);
+          conditions.push(`a.platform = '__NO_PLATFORM__'`);
         }
-      } else if (Array.isArray(value) && value.length > 0 && value.every(v => typeof v === 'string')) {
-        const arrayString = escapeArray(value);
-        conditions.push(`a.${field}_tag @> ARRAY[${arrayString}]::text[]`);
+      } 
+      else if (Array.isArray(value) && value.length > 0 && value.every(v => typeof v === 'string')) {
+        const lowerValues = value.map(v => v.toLowerCase());
+  
+        // 각 태그마다 EXISTS 절 생성 (모두 만족해야 함 = AND)
+        const tagConditions = lowerValues.map(val => `
+          EXISTS (
+            SELECT 1 FROM unnest(a.${field}_tag) AS tag
+            WHERE LOWER(tag) = '${val}'
+          )
+        `);
+
+        // 모든 태그 조건을 AND로 연결
+        conditions.push(`(${tagConditions.join(' AND ')})`);
       }
     }
 
@@ -471,10 +495,10 @@ function parseQueryString(rawQuery) {
 
         if (field === 'views') {
           if (!isNaN(min)) conditions.push(`p.video_view_count >= ${min}`);
-          if (!isNaN(max)) conditions.push(`p.video_view_count <= ${max}`);
+          if (!isNaN(max) && Number(max) < 10000000) conditions.push(`p.video_view_count <= ${max}`);
         } else if (field === 'likes') {
           if (!isNaN(min)) conditions.push(`p.like_count >= ${min}`);
-          if (!isNaN(max)) conditions.push(`p.like_count <= ${max}`);
+          if (!isNaN(max) && Number(max) < 10000000) conditions.push(`p.like_count <= ${max}`);
         }
       }
     }
@@ -673,4 +697,67 @@ exports.suggestAndMaybeAutocorrect = async (includeTokens, opts = {}) => {
   }
 
   return { suggestions, corrected: anyChanged ? corrected : null };
+};
+
+
+
+/**
+ * 분석 결과(responsePayload 배열)에서 태그 리스트(topic/genre/format)를 추출하는 함수
+ * 
+ * @param {Array} responsePayload - mergeSearchAndAnalyzedResult()의 반환 배열
+ * @returns {{ topic_list: string[], genre_list: string[], format_list: string[] }}
+ */
+ exports.extractTagListFromResponse = (responsePayload) => {
+  try {
+    if (!Array.isArray(responsePayload)) {
+      console.warn("[extractTagListFromResponse] responsePayload is not an array");
+      return { topic_list: [], genre_list: [], format_list: [] };
+    }
+
+    const topicSet = new Set();
+    const genreSet = new Set();
+    const formatSet = new Set();
+
+    for (const item of responsePayload) {
+      const analyzed = item?.analyzed_result;
+      if (!analyzed) continue;
+
+      // topic_tag
+      if (Array.isArray(analyzed.topic_tag)) {
+        analyzed.topic_tag.forEach(tag => {
+          if (tag && typeof tag === 'string' && tag.trim() !== '') {
+            topicSet.add(tag.trim());
+          }
+        });
+      }
+
+      // genre_tag
+      if (Array.isArray(analyzed.genre_tag)) {
+        analyzed.genre_tag.forEach(tag => {
+          if (tag && typeof tag === 'string' && tag.trim() !== '') {
+            genreSet.add(tag.trim());
+          }
+        });
+      }
+
+      // format_tag
+      if (Array.isArray(analyzed.format_tag)) {
+        analyzed.format_tag.forEach(tag => {
+          if (tag && typeof tag === 'string' && tag.trim() !== '') {
+            formatSet.add(tag.trim());
+          }
+        });
+      }
+    }
+
+    return {
+      topic_list: [...topicSet].sort(),
+      genre_list: [...genreSet].sort(),
+      format_list: [...formatSet].sort()
+    };
+
+  } catch (err) {
+    logger.error("[extractTagListFromResponse ERROR] :: " + err.stack);
+    throw err;
+  }
 };

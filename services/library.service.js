@@ -24,7 +24,7 @@ exports.getUserMarkListService = async (userEmail) => {
     }
     catch(err) {
         logger.error('getUserMarkListService Error:', err.stack);
-        throw new Error('통합 검색 WHERE 절 생성 실패');
+        throw new Error('마킹 리스트 검색 WHERE 절 생성 실패');
     }
 }
 
