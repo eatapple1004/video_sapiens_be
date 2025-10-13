@@ -208,35 +208,52 @@ exports.getSearchResult = async (filterWhere) => {
  * @param {Object} filterWhere : where 문
  * @returns {String} whereClause : WHERE 조건절만 반환
  */
- exports.getAnalyzedResult = async (filterWhere) => {
+exports.getAnalyzedResult = async (filterWhere) => {
   try {
     const rows = await searchRepo.getAnalyzedResultRepo(filterWhere);
 
-    const analyzedResultVOList = rows.map(row => new AnalyzedResultVO({
-      platform_shortcode: row.platform + '_' + row.shortcode,
-      platform_icon_url:  row.platform_icon_url,
-      title:              row.title,
-      profile_image_url:  row.profile_pic_url,
-      creator_username:   row.username,
-      followers:          row.followers,
-      
-      play_count:     row.play_count,
-      view_count:     row.view_count,
-      like_count:     row.like_count,
-      comment_count:  row.comment_count,
-      
-      caption:    row.caption,
-      audio_info: row.song_name + ', ' + row.artist_name,
-      
-      topic_tag:  row.topic_tag,
-      genre_tag:  row.genre_tag,
-      format_tag: row.format_tag,
-      
-      summary:              row.summary,
-      visual_hook_summary:  row.visual_hook_summary,
-      sound_hook_summary:   row.sound_hook_summary,
-      text_hook_summary:    row.text_hook_summary
-    }));
+    const analyzedResultVOList = rows.map(row => {
+      // 🎵 오디오 정보 처리 로직
+      const song = row.song_name?.trim();
+      const artist = row.artist_name?.trim();
+
+      let audioInfo = null;
+
+      if (song && artist) {
+        audioInfo = `${song}, ${artist}`;
+      } else if (song) {
+        audioInfo = song;
+      } else if (artist) {
+        audioInfo = artist;
+      } else {
+        audioInfo = null; // ✅ 두 값 모두 없을 때 null 반환
+      }
+
+      return new AnalyzedResultVO({
+        platform_shortcode: row.platform + '_' + row.shortcode,
+        platform_icon_url:  row.platform_icon_url,
+        title:              row.title,
+        profile_image_url:  row.profile_pic_url,
+        creator_username:   row.username,
+        followers:          row.followers,
+
+        play_count:     row.play_count,
+        view_count:     row.view_count,
+        like_count:     row.like_count,
+        comment_count:  row.comment_count,
+
+        caption:    row.caption,
+        audio_info: audioInfo,   // ✅ null 또는 조합 문자열
+        topic_tag:  row.topic_tag,
+        genre_tag:  row.genre_tag,
+        format_tag: row.format_tag,
+
+        summary:              row.summary,
+        visual_hook_summary:  row.visual_hook_summary,
+        sound_hook_summary:   row.sound_hook_summary,
+        text_hook_summary:    row.text_hook_summary
+      });
+    });
 
     return analyzedResultVOList;
   } catch (err) {
@@ -244,6 +261,7 @@ exports.getSearchResult = async (filterWhere) => {
     throw err;
   }
 };
+
 
 
 /**
